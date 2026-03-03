@@ -52,7 +52,7 @@
 
 .nav a {
   font-weight: 500;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
   transition: color 0.2s;
 }
@@ -65,7 +65,7 @@
 .cartLink {
   position: relative;
   font-weight: 500;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   color: var(--text-secondary);
   transition: color 0.2s;
 }
@@ -98,7 +98,7 @@
   border: 2px solid var(--accent);
   border-radius: var(--radius-sm);
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -131,7 +131,10 @@
   .nav {
     gap: 16px;
   }
-  .nav a:not(.cartLink) {
-    font-size: 0.9rem;
+  .nav a {
+    font-size: 1.05rem;
+  }
+  .langBtn {
+    font-size: 1rem;
   }
 }

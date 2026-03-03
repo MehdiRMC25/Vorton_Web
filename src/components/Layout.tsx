@@ -36,6 +36,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link to="/signin" className={location.pathname === '/signin' ? styles.navActive : ''}>
               {t('signIn')}
             </Link>
+            <Link to="/contact" className={location.pathname === '/contact' ? styles.navActive : ''}>
+              {t('contact')}
+            </Link>
             <button
               type="button"
               className={locale === 'en' ? `${styles.langBtn} ${styles.langBtnActive}` : styles.langBtn}
