@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { translations, type Locale } from '../locales/translations'
 
 const STORAGE_KEY = 'vorton-locale'
@@ -20,6 +20,10 @@ const LocaleContext = createContext<LocaleContextValue | null>(null)
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-locale', locale)
+  }, [locale])
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)

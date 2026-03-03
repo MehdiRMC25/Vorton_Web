@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
+import { useLocale } from '../context/LocaleContext'
 import { articles } from '../data'
 import ProductCard from '../components/ProductCard'
 import styles from './Home.module.css'
-import vortonLogo from '../../Assets_2/Vorton_Logo.png'
 
 export default function Home() {
+  const { t } = useLocale()
   const { products, loading, error } = useProducts()
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set())
 
@@ -21,13 +22,6 @@ export default function Home() {
     <>
       <section className={styles.hero}>
         <div className={styles.heroOverlay} />
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Vorton</h1>
-          <p className={styles.heroTagline}>Discover Your Style</p>
-        </div>
-        <div className={styles.heroLogo}>
-          <img src={vortonLogo} alt="Vorton" className={styles.heroLogoImg} />
-        </div>
       </section>
 
       {error && (
@@ -38,9 +32,9 @@ export default function Home() {
 
       <section className={styles.section}>
         <div className="container">
-          <h2 className="section-title">New collection</h2>
+          <h2 className="section-title">{t('newCollection')}</h2>
           {loading ? (
-            <p className={styles.empty}>Loading…</p>
+            <p className={styles.empty}>{t('loading')}</p>
           ) : newCollectionProducts.length > 0 ? (
             <div className={styles.productGrid}>
               {newCollectionProducts.slice(0, 4).map((p) => (
@@ -48,16 +42,16 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>No products yet.</p>
+            <p className={styles.empty}>{t('noProductsYet')}</p>
           )}
         </div>
       </section>
 
       <section className={styles.section}>
         <div className="container">
-          <h2 className="section-title">On Sale</h2>
+          <h2 className="section-title">{t('onSale')}</h2>
           {loading ? (
-            <p className={styles.empty}>Loading…</p>
+            <p className={styles.empty}>{t('loading')}</p>
           ) : onSaleProducts.length > 0 ? (
             <div className={styles.productGrid}>
               {onSaleProducts.slice(0, 4).map((p) => (
@@ -65,28 +59,41 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className={styles.empty}>No items on sale right now.</p>
+            <p className={styles.empty}>{t('noItemsOnSale')}</p>
           )}
         </div>
       </section>
 
-      <section className={styles.vortonLine}>
-        <div className={styles.vortonLineInner}>
-          <span>Vorton</span>
-          <span className={styles.sep}>—</span>
-          <span>Vorton</span>
-          <span className={styles.sep}>—</span>
-          <span>Vorton</span>
-          <span className={styles.sep}>—</span>
-          <span>Vorton</span>
-          <span className={styles.sep}>—</span>
-          <span>Vorton</span>
+      <section className={styles.vortonLine} aria-hidden>
+        <div className={styles.vortonLineTrack}>
+          <div className={styles.vortonLineInner}>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+          </div>
+          <div className={styles.vortonLineInner} aria-hidden>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+            <span className={styles.sep}>—</span>
+            <span>Vorton</span>
+          </div>
         </div>
       </section>
 
       <section className={styles.section}>
         <div className="container">
-          <h2 className="section-title">Media</h2>
+          <h2 className="section-title">{t('media')}</h2>
           <div className={styles.videoGrid}>
             <div className={styles.videoCard}>
               <video
@@ -119,7 +126,7 @@ export default function Home() {
 
       <section className={styles.section}>
         <div className="container">
-          <h2 className="section-title">Articles</h2>
+          <h2 className="section-title">{t('articles')}</h2>
           <div className={styles.articleGrid}>
             {articles.map((a) => (
               <a href="#" key={a.id} className={styles.articleCard}>

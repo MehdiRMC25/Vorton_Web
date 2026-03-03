@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLocale } from '../context/LocaleContext'
 import type { Product } from '../types'
 import styles from './ProductCard.module.css'
 
@@ -11,6 +12,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onImageError, compact }: ProductCardProps) {
+  const { t } = useLocale()
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
 
@@ -50,7 +52,7 @@ return (
     <Link to={`/shop/${product.slug}`} className={`${styles.card} ${compact ? styles.cardCompact : ''}`}>
       <div className={styles.imageWrap}>
         <img src={product.image} alt={product.name} className={styles.image} />
-        {product.onSale && <span className={styles.saleBadge}>Sale</span>}
+        {product.onSale && <span className={styles.saleBadge}>{t('sale')}</span>}
       </div>
       <div className={styles.body}>
         <h3 className={styles.name}>{product.name}</h3>
@@ -65,7 +67,7 @@ return (
             />
           ))}
         </div>
-        <p className={styles.sizes}>Sizes: {product.sizes.join(', ')}</p>
+        <p className={styles.sizes}>{t('sizesLabel')}: {product.sizes.join(', ')}</p>
         <div className={styles.priceRow}>
           {hasSale && (
             <span className={styles.priceOriginal}>₼{product.price.toFixed(2)}</span>

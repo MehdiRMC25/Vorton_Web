@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { useLocale } from '../context/LocaleContext'
 import styles from './Cart.module.css'
 
 function getItemImage(item: { product: { image: string; variants?: { image: string }[] }; variantIndex: number }) {
@@ -14,16 +15,17 @@ function getItemPrice(item: { product: { price: number; salePrice?: number; vari
 }
 
 export default function Cart() {
+  const { t } = useLocale()
   const { items, removeItem, updateQuantity } = useCart()
 
   if (items.length === 0) {
     return (
       <div className="container">
-        <h1 className={styles.title}>Cart</h1>
+        <h1 className={styles.title}>{t('cart')}</h1>
         <div className={styles.empty}>
-          <p>Your cart is empty.</p>
+          <p>{t('yourCartEmpty')}</p>
           <Link to="/shop" className="btn btn-primary">
-            Continue Shopping
+            {t('continueShopping')}
           </Link>
         </div>
       </div>
@@ -37,7 +39,7 @@ export default function Cart() {
 
   return (
     <div className="container">
-      <h1 className={styles.title}>Cart</h1>
+      <h1 className={styles.title}>{t('cart')}</h1>
       <div className={styles.wrap}>
         <div className={styles.list}>
           {items.map((item) => {
@@ -56,7 +58,7 @@ export default function Cart() {
                   <h3 className={styles.itemName}>{item.product.name}</h3>
                   <p className={styles.itemMeta}>
                     {colorName && `${colorName} · `}
-                    Size: {item.size} · ₼{price.toFixed(2)} each
+                    {t('sizeLabel')}: {item.size} · ₼{price.toFixed(2)} {t('each')}
                   </p>
                   <div className={styles.itemActions}>
                     <div className={styles.qty}>
@@ -83,7 +85,7 @@ export default function Cart() {
                       className={styles.remove}
                       onClick={() => removeItem(item.product.id, item.variantIndex, item.size)}
                     >
-                      Remove
+                      {t('remove')}
                     </button>
                   </div>
                 </div>
@@ -95,15 +97,15 @@ export default function Cart() {
         <div className={styles.sidebar}>
           <div className={styles.summary}>
             <p className={styles.summaryRow}>
-              <span>Subtotal</span>
+              <span>{t('subtotal')}</span>
               <span>₼{subtotal.toFixed(2)}</span>
             </p>
-            <p className={styles.note}>Shipping and taxes calculated at checkout.</p>
+            <p className={styles.note}>{t('shippingNote')}</p>
             <Link to="/shop" className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}>
-              Checkout
+              {t('checkout')}
             </Link>
             <Link to="/shop" className={styles.continue}>
-              Continue shopping
+              {t('continueShopping')}
             </Link>
           </div>
         </div>

@@ -92,10 +92,10 @@
 }
 
 .optionActive {
-  background: rgba(232, 93, 44, 0.2);
+  background: var(--accent-muted);
   color: var(--accent);
 }
 
 .optionActive:hover {
-  background: rgba(232, 93, 44, 0.25);
+  background: var(--accent-muted-hover);
 }

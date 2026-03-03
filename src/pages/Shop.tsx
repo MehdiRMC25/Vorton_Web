@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useSearchParams, useLocation } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
+import { useLocale } from '../context/LocaleContext'
 import ProductCard from '../components/ProductCard'
 import ScrollSelect from '../components/ScrollSelect'
 import type { Product } from '../types'
@@ -35,6 +36,7 @@ function productHasSize(p: Product, size: string): boolean {
 }
 
 export default function Shop() {
+  const { t } = useLocale()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const category = (searchParams.get('category') as 'men' | 'women' | null) || null
@@ -96,30 +98,30 @@ export default function Shop() {
         <div className={styles.sidebarBrand}>
           <span className={styles.sidebarLogo}>V</span>
           <span className={styles.sidebarTitle}>Vorton</span>
-          <span className={styles.sidebarTagline}>Discover Your Style</span>
+          <span className={styles.sidebarTagline}>{t('discoverYourStyle')}</span>
         </div>
 
         <div className={styles.filterBlock}>
-          <label className={styles.filterLabel} htmlFor="shop-gender">Gender</label>
+          <label className={styles.filterLabel} htmlFor="shop-gender">{t('gender')}</label>
           <select
             id="shop-gender"
             className={styles.select}
             value={category ?? ''}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="">All</option>
-            <option value="men">Men</option>
-            <option value="women">Women</option>
+            <option value="">{t('all')}</option>
+            <option value="men">{t('men')}</option>
+            <option value="women">{t('women')}</option>
           </select>
         </div>
 
         <div className={styles.filterBlock}>
           <ScrollSelect
             id="shop-color"
-            label="Color"
+            label={t('color')}
             value={selectedColor}
             options={filterOptions.colors.map((c) => ({ value: c, label: c }))}
-            placeholder="All colors"
+            placeholder={t('allColors')}
             onChange={setSelectedColor}
             disabled={loading}
           />
@@ -128,10 +130,10 @@ export default function Shop() {
         <div className={styles.filterBlock}>
           <ScrollSelect
             id="shop-size"
-            label="Size"
+            label={t('size')}
             value={selectedSize}
             options={filterOptions.sizes.map((s) => ({ value: s, label: s }))}
-            placeholder="All sizes"
+            placeholder={t('allSizes')}
             onChange={setSelectedSize}
             disabled={loading}
           />
@@ -141,14 +143,14 @@ export default function Shop() {
       <div className={styles.main}>
         <div className={styles.header}>
           <h1 className={styles.title}>
-            {category === 'men' ? "Men's Collection" : category === 'women' ? "Women's Collection" : 'Shop'}
+            {category === 'men' ? t('mensCollection') : category === 'women' ? t('womensCollection') : t('shop')}
           </h1>
         </div>
         {error && <p style={{ color: 'var(--sale)', marginBottom: 16 }}>{error}</p>}
         {loading ? (
-          <p className={styles.empty}>Loading products…</p>
+          <p className={styles.empty}>{t('loadingProducts')}</p>
         ) : filtered.length === 0 ? (
-          <p className={styles.empty}>No products match the selected filters.</p>
+          <p className={styles.empty}>{t('noProductsMatch')}</p>
         ) : (
           <div className={styles.grid}>
             {filtered.map((p) => (

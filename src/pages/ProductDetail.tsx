@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useCart } from '../context/CartContext'
+import { useLocale } from '../context/LocaleContext'
 import ProductCard from '../components/ProductCard'
 import type { Product } from '../types'
 import styles from './ProductDetail.module.css'
@@ -31,6 +32,7 @@ function getSimilarProducts(current: Product, all: Product[], limit: number): Pr
 }
 
 export default function ProductDetail() {
+  const { t } = useLocale()
   const { slug } = useParams()
   const navigate = useNavigate()
   const { addItem } = useCart()
@@ -62,7 +64,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="container">
-        <p>Loading…</p>
+        <p>{t('loading')}</p>
       </div>
     )
   }
@@ -70,9 +72,9 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="container">
-        <p>Product not found.</p>
+        <p>{t('productNotFound')}</p>
         <button className="btn btn-secondary" onClick={() => navigate('/shop')}>
-          Back to Shop
+          {t('backToShop')}
         </button>
       </div>
     )
@@ -95,7 +97,7 @@ export default function ProductDetail() {
   return (
     <div className="container">
       <button className={styles.back} onClick={() => navigate(-1)}>
-        ← Back
+        {t('back')}
       </button>
 
       <div className={styles.wrap}>
@@ -123,7 +125,7 @@ export default function ProductDetail() {
 
           {p.colors.length > 0 && (
             <div className={styles.row}>
-              <span className={styles.label}>Color:</span>
+              <span className={styles.label}>{t('color')}:</span>
               <div className={styles.colorSwatches}>
                 {p.colors.map((c, i) => (
                   <button
@@ -153,14 +155,14 @@ export default function ProductDetail() {
 
           {fabric && (
             <div className={styles.fabric}>
-              <span className={styles.label}>Fabric</span>
+              <span className={styles.label}>{t('fabric')}</span>
               <p className={styles.fabricValue}>{fabric}</p>
             </div>
           )}
 
           {sizes.length > 0 && (
             <div className={styles.row}>
-              <span className={styles.label}>Select Size</span>
+              <span className={styles.label}>{t('selectSize')}</span>
               <div className={styles.sizes}>
                 {sizes.map((s) => (
                   <button
@@ -177,7 +179,7 @@ export default function ProductDetail() {
           )}
 
           <div className={styles.row}>
-            <span className={styles.label}>Quantity</span>
+            <span className={styles.label}>{t('quantity')}</span>
             <div className={styles.qty}>
               <button
                 type="button"
@@ -202,14 +204,14 @@ export default function ProductDetail() {
             onClick={handleAddToCart}
             disabled={sizes.length > 0 && !effectiveSize}
           >
-            Add to Cart — ₼{(displayPrice * quantity).toFixed(2)}
+            {t('addToCart')} — ₼{(displayPrice * quantity).toFixed(2)}
           </button>
         </div>
       </div>
 
       {similarProducts.length > 0 && (
         <section className={styles.similar}>
-          <h2 className={styles.similarTitle}>Similar products</h2>
+          <h2 className={styles.similarTitle}>{t('similarProducts')}</h2>
           <div className={styles.similarGrid}>
             {similarProducts.map((prod) => (
               <ProductCard key={prod.id} product={prod} compact />
