@@ -1,0 +1,49 @@
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 32px;
+  letter-spacing: -0.02em;
+}
+
+.content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.content p {
+  margin: 0 0 1.25em;
+}
+
+.lead {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.contact {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.contact h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.contact p {
+  margin: 0 0 4px;
+}
+
+.email {
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: 8px !important;
+}

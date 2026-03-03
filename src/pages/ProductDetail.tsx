@@ -1,0 +1,222 @@
+import { useState, useEffect, useMemo } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useProducts } from '../context/ProductsContext'
+import { useCart } from '../context/CartContext'
+import ProductCard from '../components/ProductCard'
+import type { Product } from '../types'
+import styles from './ProductDetail.module.css'
+
+const SIMILAR_LIMIT = 6
+
+function getWords(name: string): string[] {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .split(/\W+/)
+    .filter(Boolean)
+}
+
+function getSimilarProducts(current: Product, all: Product[], limit: number): Product[] {
+  const currentWords = getWords(current.name)
+  const scored = all
+    .filter((p) => p.id !== current.id)
+    .map((p) => {
+      const otherWords = getWords(p.name)
+      const matchCount = currentWords.filter((w) => otherWords.includes(w)).length
+      return { product: p, matchCount }
+    })
+    .filter(({ matchCount }) => matchCount >= 1)
+    .sort((a, b) => b.matchCount - a.matchCount)
+  return scored.slice(0, limit).map(({ product }) => product)
+}
+
+export default function ProductDetail() {
+  const { slug } = useParams()
+  const navigate = useNavigate()
+  const { addItem } = useCart()
+  const { products, loading } = useProducts()
+  const product = products.find((p) => p.slug === slug)
+
+  const [selectedColor, setSelectedColor] = useState(0)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [quantity, setQuantity] = useState(1)
+  const [mainImage, setMainImage] = useState(0)
+
+  const variant = product?.variants?.[selectedColor]
+  const images = variant?.images?.length
+    ? variant.images
+    : (product?.images?.length ? product.images : product ? [product.image] : [])
+  const displayPrice = variant
+    ? (variant.discountedPrice ?? variant.price)
+    : (product ? (product.salePrice ?? product.price) : 0)
+  const hasSale = variant ? !!variant.isDiscounted : (product ? !!(product.onSale && product.salePrice) : false)
+  const sizes = variant?.sizes?.length ? variant.sizes : (product?.sizes || [])
+  const fabric = variant?.fabric ?? product?.fabric
+  const effectiveSize = selectedSize ?? sizes[0]
+
+  useEffect(() => {
+    setMainImage(0)
+    setSelectedSize(null)
+  }, [selectedColor])
+
+  if (loading) {
+    return (
+      <div className="container">
+        <p>Loading…</p>
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="container">
+        <p>Product not found.</p>
+        <button className="btn btn-secondary" onClick={() => navigate('/shop')}>
+          Back to Shop
+        </button>
+      </div>
+    )
+  }
+
+  const p = product
+  const variantIndex = p.variants?.length ? selectedColor : 0
+  const similarProducts = useMemo(() => getSimilarProducts(p, products, SIMILAR_LIMIT), [p, products])
+
+  function handleAddToCart() {
+    addItem({
+      product: p,
+      variantIndex,
+      size: effectiveSize ?? '',
+      quantity,
+    })
+    navigate('/cart')
+  }
+
+  return (
+    <div className="container">
+      <button className={styles.back} onClick={() => navigate(-1)}>
+        ← Back
+      </button>
+
+      <div className={styles.wrap}>
+        <div className={styles.gallery}>
+          <div className={styles.mainImage}>
+            <img src={images[mainImage] || p.image} alt={p.name} />
+          </div>
+          <div className={styles.thumbnails}>
+            {images.map((src, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`${styles.thumb} ${i === mainImage ? styles.thumbActive : ''}`}
+                onClick={() => setMainImage(i)}
+              >
+                <img src={src} alt="" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.info}>
+          <h1 className={styles.title}>{p.name}</h1>
+          <p className={styles.sku}>SKU: {p.sku}</p>
+
+          {p.colors.length > 0 && (
+            <div className={styles.row}>
+              <span className={styles.label}>Color:</span>
+              <div className={styles.colorSwatches}>
+                {p.colors.map((c, i) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    className={`${styles.colorBtn} ${i === selectedColor ? styles.colorBtnActive : ''}`}
+                    style={{ background: c.hex }}
+                    onClick={() => setSelectedColor(i)}
+                    title={c.name}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className={styles.price}>
+            {hasSale && variant && (
+              <span className={styles.priceOriginal}>₼{variant.price.toFixed(2)}</span>
+            )}
+            {hasSale && !variant && p.salePrice != null && (
+              <span className={styles.priceOriginal}>₼{p.price.toFixed(2)}</span>
+            )}
+            <span className={hasSale ? styles.priceSale : styles.priceCurrent}>
+              ₼{displayPrice.toFixed(2)}
+            </span>
+          </div>
+
+          {fabric && (
+            <div className={styles.fabric}>
+              <span className={styles.label}>Fabric</span>
+              <p className={styles.fabricValue}>{fabric}</p>
+            </div>
+          )}
+
+          {sizes.length > 0 && (
+            <div className={styles.row}>
+              <span className={styles.label}>Select Size</span>
+              <div className={styles.sizes}>
+                {sizes.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    className={`${styles.sizeBtn} ${effectiveSize === s ? styles.sizeBtnActive : ''}`}
+                    onClick={() => setSelectedSize(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className={styles.row}>
+            <span className={styles.label}>Quantity</span>
+            <div className={styles.qty}>
+              <button
+                type="button"
+                className={styles.qtyBtn}
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              >
+                −
+              </button>
+              <span className={styles.qtyValue}>{quantity}</span>
+              <button
+                type="button"
+                className={styles.qtyBtn}
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <button
+            className={styles.addToCart}
+            onClick={handleAddToCart}
+            disabled={sizes.length > 0 && !effectiveSize}
+          >
+            Add to Cart — ₼{(displayPrice * quantity).toFixed(2)}
+          </button>
+        </div>
+      </div>
+
+      {similarProducts.length > 0 && (
+        <section className={styles.similar}>
+          <h2 className={styles.similarTitle}>Similar products</h2>
+          <div className={styles.similarGrid}>
+            {similarProducts.map((prod) => (
+              <ProductCard key={prod.id} product={prod} compact />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}

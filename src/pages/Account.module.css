@@ -1,0 +1,107 @@
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.welcome {
+  color: var(--text-secondary);
+  margin: 0 0 32px;
+  font-size: 1.05rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+
+.card .sectionTitle {
+  margin: 0 0 8px;
+}
+
+.value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.section {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.settingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.settingLabel {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  min-width: 120px;
+}
+
+.langOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.langOption,
+.langOptionActive {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.langOption:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.langOptionActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.placeholder {
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+}
+
+.link {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

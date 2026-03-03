@@ -1,0 +1,137 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.headerInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.navWrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.logoIcon {
+  height: 44px;
+  width: auto;
+  max-width: 132px;
+  object-fit: contain;
+  display: block;
+  vertical-align: middle;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav a {
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.nav a:hover,
+.navActive {
+  color: var(--text-primary) !important;
+}
+
+.cartLink {
+  position: relative;
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+
+.cartLink:hover {
+  color: var(--text-primary);
+}
+
+.cartBadge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.langBtn {
+  margin-left: 8px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.langBtn:hover {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.langBtnActive {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.langBtnActive:hover {
+  background: var(--accent-hover);
+  color: white;
+  border-color: var(--accent-hover);
+}
+
+.mainPadded {
+  flex: 1;
+  padding: 32px 0 48px;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    gap: 16px;
+  }
+  .nav a:not(.cartLink) {
+    font-size: 0.9rem;
+  }
+}
