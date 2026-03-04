@@ -101,7 +101,7 @@ export default function Cart() {
               <span>₼{subtotal.toFixed(2)}</span>
             </p>
             <p className={styles.note}>{t('shippingNote')}</p>
-            <Link to="/shop" className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}>
+            <Link to="/checkout" className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}>
               {t('checkout')}
             </Link>
             <Link to="/shop" className={styles.continue}>

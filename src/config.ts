@@ -4,6 +4,10 @@
 export const config = {
   apiUrl: (import.meta.env.VITE_API_URL || 'https://vorton-mob-app.onrender.com').replace(/\/$/, ''),
   productsPath: import.meta.env.VITE_PRODUCTS_PATH || '/api/products',
+  /** Payment backend base URL (no trailing slash). Backend must allow CORS for your site origin. */
+  paymentApiUrl: (import.meta.env.VITE_PAYMENT_API_URL || 'https://vorton-payement.onrender.com').replace(/\/$/, ''),
+  /** Path for creating a payment (e.g. /api/v1/payments/create or /api/order). */
+  paymentCreatePath: import.meta.env.VITE_PAYMENT_CREATE_PATH || '/api/v1/payments/create',
   cloudinary: {
     cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '',
     folder: import.meta.env.VITE_CLOUDINARY_FOLDER || 'vorton-products',
