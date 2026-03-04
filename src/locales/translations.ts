@@ -81,7 +81,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     paymentSuccessMessage: 'Sifarişiniz üçün təşəkkür edirik.',
     paymentLoadingHint: 'Ödəniş sisteminə bağlanılır; ilk dəfə bir qədər vaxt çəkə bilər.',
     paymentTimeoutMessage: 'Ödəniş xidməti oyanır. "Ödənişə keç" düyməsini yenidən sıxın; növbəti cəhd adətən tez olur.',
-    paymentCorsError: 'Ödəniş serveri brauzeri bloklayır. Backend-də CORS açılmalıdır: http://localhost:5173 və https://vorton.uk mənbələrinə icazə verin.',
+    paymentCorsError: 'Ödəniş serveri brauzer tərəfindən bloklanır. Backend-də bu mənbəyə CORS icazəsi verin.',
+    youAreOn: 'Sizin mənbə',
 
     signInTitle: 'Daxil ol',
     emailLabel: 'Email',
@@ -176,7 +177,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     paymentSuccessMessage: 'Thank you for your order.',
     paymentLoadingHint: 'Connecting to payment service; the first request may take a minute.',
     paymentTimeoutMessage: 'Payment service is waking up. Click "Proceed to payment" again; the next try is usually quick.',
-    paymentCorsError: 'Payment server is blocked by the browser. Your backend must allow CORS for: http://localhost:5173 and https://vorton.uk',
+    paymentCorsError: 'Payment server is blocked by the browser. Your backend must allow CORS for this origin.',
+    youAreOn: 'You are on',
 
     signInTitle: 'Sign in',
     emailLabel: 'Email',

@@ -50,12 +50,14 @@ export default function Checkout() {
       else throw new Error('No payment URL returned')
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Payment failed'
+      const corsMsg =
+          msg === 'PAYMENT_CORS_OR_NETWORK'
+            ? `${t('paymentCorsError')} (${t('youAreOn')}: ${window.location.origin})`
+            : null
       setError(
         msg === 'PAYMENT_TIMEOUT'
           ? t('paymentTimeoutMessage')
-          : msg === 'PAYMENT_CORS_OR_NETWORK'
-            ? t('paymentCorsError')
-            : msg
+          : corsMsg ?? msg
       )
       setLoading(false)
     }
