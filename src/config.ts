@@ -6,8 +6,10 @@ export const config = {
   productsPath: import.meta.env.VITE_PRODUCTS_PATH || '/api/products',
   /** Payment backend base URL (no trailing slash). Backend must allow CORS for your site origin. */
   paymentApiUrl: (import.meta.env.VITE_PAYMENT_API_URL || 'https://vorton-payement.onrender.com').replace(/\/$/, ''),
-  /** Path for creating a payment (e.g. /api/v1/payments/create or /api/order). */
+  /** Path for creating a payment. payement_backend uses /api/v1/payments/create */
   paymentCreatePath: import.meta.env.VITE_PAYMENT_CREATE_PATH || '/api/v1/payments/create',
+  /** Where the bank redirects after payment. Set to https://vorton.uk/payment-done.html for production. */
+  paymentReturnUrl: import.meta.env.VITE_PAYMENT_RETURN_URL || '',
   cloudinary: {
     cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '',
     folder: import.meta.env.VITE_CLOUDINARY_FOLDER || 'vorton-products',
