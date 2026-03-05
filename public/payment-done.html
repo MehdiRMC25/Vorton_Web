@@ -66,14 +66,37 @@
 </head>
 <body>
   <div class="card">
-    <div class="icon">
+    <div class="icon" id="icon">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
       </svg>
     </div>
-    <h1>Payment complete</h1>
-    <p>Thank you for your order. We've received your payment.</p>
+    <h1 id="title">Payment complete</h1>
+    <p id="message">Thank you for your order. We've received your payment.</p>
     <a href="https://vorton.uk/">Back to Vorton</a>
   </div>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var status = (params.get('STATUS') || '').trim();
+      var success = /^(FullyPaid|Paid|Success)$/i.test(status);
+      var cancelled = /^(Cancelled|Canceled|Rejected)$/i.test(status);
+      var failed = status && !success && !cancelled;
+      var titleEl = document.getElementById('title');
+      var messageEl = document.getElementById('message');
+      var iconEl = document.getElementById('icon');
+      if (cancelled) {
+        titleEl.textContent = 'Payment cancelled';
+        messageEl.textContent = "This payment was not completed.";
+        iconEl.style.background = '#6b7280';
+        iconEl.innerHTML = '<svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+      } else if (failed) {
+        titleEl.textContent = 'Payment failed';
+        messageEl.textContent = "Something went wrong with the payment.";
+        iconEl.style.background = '#dc2626';
+        iconEl.innerHTML = '<svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+      }
+    })();
+  </script>
 </body>
 </html>
