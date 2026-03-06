@@ -45,4 +45,5 @@ export interface Article {
   image: string
   slug: string
   date: string
+  url?: string
 }

@@ -1,5 +1,5 @@
 .wrap {
-  max-width: 720px;
+  max-width: 880px;
   margin: 0 auto;
 }
 
@@ -20,12 +20,13 @@
   background: var(--bg-card);
   border-radius: var(--radius);
   padding: 20px 24px;
-  margin-bottom: 16px;
   border: 1px solid var(--border);
 }
 
-.card .sectionTitle {
-  margin: 0 0 8px;
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .value {
@@ -39,6 +40,24 @@
 .section {
   padding: 24px 0;
   border-top: 1px solid var(--border);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.label {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.text {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .sectionTitle {
@@ -96,6 +115,43 @@
   font-size: 0.95rem;
 }
 
+.orderList {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.orderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  padding: 12px;
+}
+
+.orderId {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.orderRight {
+  text-align: right;
+}
+
+.orderTotal {
+  margin: 0;
+  font-weight: 600;
+}
+
+.orderMeta {
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
 .link {
   color: var(--accent);
   font-weight: 500;
@@ -104,4 +160,28 @@
 
 .link:hover {
   text-decoration: underline;
+}
+
+.signOutBtn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.signOutBtn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+  .cardGrid,
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
 }

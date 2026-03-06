@@ -14,6 +14,7 @@
   font-size: 1.05rem;
   line-height: 1.7;
   color: var(--text-secondary);
+  text-align: justify;
 }
 
 .content p {
@@ -24,6 +25,23 @@
   font-size: 1.2rem;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 2em 0 0.5em;
+}
+
+.sectionTitle:first-of-type {
+  margin-top: 1.5em;
+}
+
+.tagline {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: 1.5em !important;
 }
 
 .contact {

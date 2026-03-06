@@ -1,0 +1,167 @@
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+} from 'react'
+import { getMe, login as apiLogin, signup as apiSignup } from '../api/auth'
+import type { AuthUser } from '../api/auth'
+
+const STORAGE_KEY = 'vorton_auth_token'
+const STORAGE_USER_KEY = 'vorton_auth_user'
+
+type AuthState = {
+  user: AuthUser | null
+  token: string | null
+  isAuthenticated: boolean
+  loading: boolean
+  error: string | null
+  login: (emailOrPhone: string, password: string) => Promise<void>
+  signup: (data: {
+    name: string
+    phone: string
+    email?: string
+    address?: string
+    password: string
+    confirmPassword: string
+  }) => Promise<void>
+  logout: () => void
+  clearError: () => void
+}
+
+const AuthContext = createContext<AuthState | null>(null)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null)
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
+  )
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function bootstrap() {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
+      const storedUser = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_USER_KEY) : null
+      if (!stored) {
+        setLoading(false)
+        return
+      }
+      setToken(stored)
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser) as AuthUser)
+        } catch {
+          setUser(null)
+        }
+      }
+      try {
+        const me = await getMe(stored)
+        setUser(me)
+        if (typeof window !== 'undefined') localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+      } catch {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(STORAGE_KEY)
+          localStorage.removeItem(STORAGE_USER_KEY)
+        }
+        setToken(null)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    void bootstrap()
+  }, [])
+
+  const login = useCallback(async (emailOrPhone: string, password: string) => {
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await apiLogin(emailOrPhone, password)
+      if (!res.token) throw new Error('AUTH_UNAVAILABLE')
+      const me = await getMe(res.token).catch(() => res.user)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, res.token)
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+      }
+      setToken(res.token)
+      setUser(me)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Login failed'
+      setError(msg)
+      throw e
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const signup = useCallback(async (data: {
+    name: string
+    phone: string
+    email?: string
+    address?: string
+    password: string
+    confirmPassword: string
+  }) => {
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await apiSignup({
+        fullName: data.name,
+        mobileNumber: data.phone,
+        email: data.email,
+        address: data.address,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      })
+      if (!res.token) throw new Error('AUTH_UNAVAILABLE')
+      const me = await getMe(res.token).catch(() => res.user)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, res.token)
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+      }
+      setToken(res.token)
+      setUser(me)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Sign-up failed'
+      setError(msg)
+      throw e
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const logout = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(STORAGE_USER_KEY)
+    }
+    setToken(null)
+    setUser(null)
+    setError(null)
+  }, [])
+
+  const clearError = useCallback(() => setError(null), [])
+
+  const value: AuthState = {
+    user,
+    token,
+    isAuthenticated: Boolean(token),
+    loading,
+    error,
+    login,
+    signup,
+    logout,
+    clearError,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
+  return ctx
+}

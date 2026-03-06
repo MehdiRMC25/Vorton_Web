@@ -8,19 +8,20 @@ export default function About() {
       <div className={styles.wrap}>
         <h1 className={styles.title}>{t('aboutVorton')}</h1>
         <div className={styles.content}>
-          <p className={styles.lead}>
-            {t('aboutLead')}
-          </p>
-          <p>
-            {t('aboutP2')}
-          </p>
-          <p>
-            {t('aboutP3')}
-          </p>
+          <p className={styles.lead}>{t('aboutIntro1')}</p>
+          <p>{t('aboutIntro2')}</p>
+          <h2 className={styles.sectionTitle}>{t('aboutOurInspiration')}</h2>
+          <p>{t('aboutOurInspirationText')}</p>
+          <h2 className={styles.sectionTitle}>{t('aboutDesignedForRealLife')}</h2>
+          <p>{t('aboutDesignedForRealLifeText')}</p>
+          <h2 className={styles.sectionTitle}>{t('aboutTeamMindset')}</h2>
+          <p>{t('aboutTeamMindsetText')}</p>
+          <p>{t('aboutGlobal')}</p>
+          <p className={styles.tagline}>{t('aboutTagline')}</p>
           <div className={styles.contact}>
             <h2>{t('getInTouch')}</h2>
             <p>{t('questionsFeedback')}</p>
-            <p className={styles.email}>hello@vortonfashion.com</p>
+            <p className={styles.email}>info@vorton.uk</p>
           </div>
         </div>
       </div>
