@@ -1,13 +1,91 @@
-/tmp
-/out-tsc
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/sdks
+.pnp.*
 
-/node_modules
+# Build & output
+dist/
+build/
+out/
+out-tsc/
+.vite/
+*.tsbuildinfo
+.next/
+nuxt.d.ts
+.nuxt/
+
+# Environment & secrets (do not commit to GitHub or hosting)
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+!.env.example
+
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/.pnp
-.pnp.js
+pnpm-debug.log*
+lerna-debug.log*
 
+# Cache & temp
+.cache/
+.parcel-cache/
+.turbo/
+tmp/
+temp/
+/tmp
+*.tmp
+*.temp
+.eslintcache
+.stylelintcache
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE / editor (local settings; optional to commit shared configs)
 .vscode/*
-.env
-.env.local
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Debug
+.debug/
+
+# Hosting / deploy (generated or local)
+.vercel
+.netlify
+.firebase
+*.local
+
+# Optional: lockfiles (uncomment only if you want to ignore; usually you commit them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# bun.lockb
