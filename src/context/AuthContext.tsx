@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { getMe, login as apiLogin, signup as apiSignup } from '../api/auth'
-import type { AuthUser } from '../api/auth'
+import type { AuthUser, SignupPayload } from '../api/auth'
 
 const STORAGE_KEY = 'vorton_auth_token'
 const STORAGE_USER_KEY = 'vorton_auth_user'
@@ -19,25 +19,24 @@ type AuthState = {
   loading: boolean
   error: string | null
   login: (emailOrPhone: string, password: string) => Promise<void>
-  signup: (data: {
-    name: string
-    phone: string
-    email?: string
-    address?: string
-    password: string
-    confirmPassword: string
-  }) => Promise<void>
+  signup: (data: SignupPayload) => Promise<{ hasSession: boolean }>
   logout: () => void
   clearError: () => void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
 
+function getStoredToken(): string | null {
+  try {
+    return typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
+  } catch {
+    return null
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [token, setToken] = useState<string | null>(() =>
-    typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-  )
+  const [token, setToken] = useState<string | null>(getStoredToken)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -80,14 +79,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     try {
       const res = await apiLogin(emailOrPhone, password)
-      if (!res.token) throw new Error('AUTH_UNAVAILABLE')
-      const me = await getMe(res.token).catch(() => res.user)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, res.token)
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+      if (res.token) {
+        const me = await getMe(res.token).catch(() => res.user)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, res.token)
+          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+        }
+        setToken(res.token)
+        setUser(me)
+      } else {
+        setError('Sign-in could not be completed. No token in response.')
+        throw new Error('Sign-in could not be completed. No token in response.')
       }
-      setToken(res.token)
-      setUser(me)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Login failed'
       setError(msg)
@@ -97,33 +100,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const signup = useCallback(async (data: {
-    name: string
-    phone: string
-    email?: string
-    address?: string
-    password: string
-    confirmPassword: string
-  }) => {
+  const signup = useCallback(async (data: SignupPayload): Promise<{ hasSession: boolean }> => {
     setError(null)
     setLoading(true)
     try {
-      const res = await apiSignup({
-        fullName: data.name,
-        mobileNumber: data.phone,
-        email: data.email,
-        address: data.address,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      })
-      if (!res.token) throw new Error('AUTH_UNAVAILABLE')
-      const me = await getMe(res.token).catch(() => res.user)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, res.token)
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+      const res = await apiSignup(data)
+      if (res.token) {
+        const me = await getMe(res.token).catch(() => res.user)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(STORAGE_KEY, res.token)
+          localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
+        }
+        setToken(res.token)
+        setUser(me)
+        return { hasSession: true }
       }
-      setToken(res.token)
-      setUser(me)
+      return { hasSession: false }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Sign-up failed'
       setError(msg)

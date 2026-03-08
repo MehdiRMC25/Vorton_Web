@@ -4,7 +4,7 @@ import styles from './About.module.css'
 export default function About() {
   const { t } = useLocale()
   return (
-    <div className="container">
+    <div className={`container ${styles.aboutContainer}`}>
       <div className={styles.wrap}>
         <h1 className={styles.title}>{t('aboutVorton')}</h1>
         <div className={styles.content}>

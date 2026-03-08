@@ -1,18 +1,21 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
+import type { UserRole } from '../api/auth'
 import styles from './Layout.module.css'
 import vortonLogo from '../../Assets_2/Vorton_Logo.png'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout() {
   const { totalItems } = useCart()
   const { locale, setLocale, t } = useLocale()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const isHome = location.pathname === '/'
   const currentYear = new Date().getFullYear()
+  const role: UserRole = (user?.role as UserRole) ?? 'customer'
+  const isStaff = role === 'employee' || role === 'manager'
 
   function handleSignOut() {
     logout()
@@ -44,6 +47,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
             {isAuthenticated ? (
               <>
+                {isStaff ? (
+                  <Link to="/staff/dashboard" className={location.pathname.startsWith('/staff') ? styles.navActive : ''}>
+                    Staff
+                  </Link>
+                ) : (
+                  <Link to="/orders" className={location.pathname.startsWith('/orders') ? styles.navActive : ''}>
+                    {t('orders')}
+                  </Link>
+                )}
                 <Link to="/account" className={location.pathname === '/account' ? styles.navActive : ''}>
                   {t('myAccount')}
                 </Link>
@@ -71,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className={`${styles.main} ${isHome ? '' : styles.mainPadded}`.trim()}>{children}</main>
+      <main className={`${styles.main} ${isHome ? '' : styles.mainPadded}`.trim()}><Outlet /></main>
       <footer className={styles.footer}>
         <div className={styles.footerBottom}>
           <span>© {currentYear} Vorton. All rights reserved.</span>

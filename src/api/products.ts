@@ -2,6 +2,7 @@ import { config, cloudinaryUrl } from '../config'
 import type { ApiProductDoc } from './types'
 import type { Product, ProductVariant } from '../types'
 
+/** Map color names (and skuColor suffixes) to hex for swatches. Include all API variants (EN/AZ, with/without spaces). */
 const COLOR_HEX: Record<string, string> = {
   Grey: '#6b7280',
   Gray: '#6b7280',
@@ -17,11 +18,91 @@ const COLOR_HEX: Record<string, string> = {
   Brown: '#92400e',
   'Dark Purple': '#4c1d95',
   'Light Grey': '#9ca3af',
-  'Boz': '#8b7355',
+  Boz: '#8b7355',
+  Pink: '#ec4899',
+  'Hot Pink': '#ff69b4',
+  'Hot-Pink': '#ff69b4',
+  Orange: '#f97316',
+  Yellow: '#eab308',
+  Maroon: '#881337',
+  Burgundy: '#9f1239',
+  Cream: '#fef3c7',
+  Khaki: '#a3a36e',
+  Teal: '#0d9488',
+  Mint: '#6ee7b7',
+  Lavender: '#a78bfa',
+  Charcoal: '#374151',
+  /* Blue variants so swatches match product images */
+  'Dark Blue': '#1e3a5f',
+  'Royal Blue': '#1d4ed8',
+  'Light Blue': '#38bdf8',
+  'Sky Blue': '#0ea5e9',
+  'Navy Blue': '#1e3a5f',
+  'Midnight Blue': '#1e293b',
+  /* Azeri / alternate names */
+  Mavi: '#2563eb',
+  'Tünd mavi': '#1e3a5f',
+  'Tünd Mavi': '#1e3a5f',
+  Bənövşəyi: '#7c3aed',
+  Qara: '#1a1a1a',
+  Boz: '#8b7355',
+  Ağ: '#f5f5f5',
+  Qırmızı: '#dc2626',
+  Yaşıl: '#16a34a',
+  Narıncı: '#f97316',
+}
+
+/** Aliases: alternate spellings or API values that should map to a known key. */
+const COLOR_ALIASES: Record<string, string> = {
+  navy: 'Navy',
+  blue: 'Blue',
+  purple: 'Purple',
+  black: 'Black',
+  white: 'White',
+  grey: 'Grey',
+  gray: 'Gray',
+  red: 'Red',
+  green: 'Green',
+  darkblue: 'Dark Blue',
+  'dark blue': 'Dark Blue',
+  royalblue: 'Royal Blue',
+  'royal blue': 'Royal Blue',
+  lightblue: 'Light Blue',
+  'light blue': 'Light Blue',
+  navyblue: 'Navy Blue',
+  'navy blue': 'Navy Blue',
+  mavi: 'Blue',
+  'tünd mavi': 'Dark Blue',
+  hotpink: 'Hot Pink',
+  'hot pink': 'Hot Pink',
+  'hot-pink': 'Hot Pink',
+}
+
+/** Normalize for lookup: "purple" -> "Purple", "dark blue" -> "Dark Blue". */
+function normalizeColorName(s: string): string {
+  const t = s.trim()
+  if (!t) return ''
+  return t.replace(/\w+/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
 }
 
 function colorToHex(color: string): string {
-  return COLOR_HEX[color] || '#6b7280'
+  if (!color || !color.trim()) return '#6b7280'
+  const raw = color.trim()
+  const normalized = normalizeColorName(raw)
+  const alias = COLOR_ALIASES[raw.toLowerCase()] ?? COLOR_ALIASES[normalized.toLowerCase()]
+  const key = alias ?? normalized ?? raw
+  return COLOR_HEX[key] ?? COLOR_HEX[raw] ?? COLOR_HEX[normalized] ?? '#6b7280'
+}
+
+/** Get color name from end of skuColor e.g. "SKU-123-Purple" -> "Purple", "X-Blue" -> "Blue". */
+function colorNameFromSkuColor(skuColor: string | undefined): string | null {
+  if (!skuColor || typeof skuColor !== 'string') return null
+  const trimmed = skuColor.trim()
+  const lastDash = trimmed.lastIndexOf('-')
+  if (lastDash === -1) return null
+  const suffix = trimmed.slice(lastDash + 1).trim()
+  if (!suffix || /^\d+$/.test(suffix)) return null
+  return suffix
 }
 
 function slugFromSku(sku: string): string {
@@ -42,11 +123,30 @@ function imageUrl(value: string | undefined): string {
   return cloudinaryUrl(s)
 }
 
-/** Fetch raw product documents from API */
+const PRODUCTS_FETCH_TIMEOUT_MS = 20000
+
+/** Fetch raw product documents from API (with timeout so we don't hang). */
 export async function fetchApiProducts(): Promise<ApiProductDoc[]> {
   const path = config.productsPath.startsWith('/') ? config.productsPath : `/${config.productsPath}`
   const url = `${config.apiUrl}${path}`
-  const res = await fetch(url)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), PRODUCTS_FETCH_TIMEOUT_MS)
+  let res: Response
+  try {
+    res = await fetch(url, { signal: controller.signal })
+  } catch (err) {
+    clearTimeout(timeoutId)
+    if (err instanceof Error) {
+      if (err.name === 'AbortError') {
+        throw new Error('Products are taking too long to load. The server may be starting up—please try again in a moment.')
+      }
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        throw new Error('Cannot reach the products server. Check your connection and that the products API URL is correct.')
+      }
+    }
+    throw err
+  }
+  clearTimeout(timeoutId)
   if (!res.ok) {
     throw new Error(`Products API error: ${res.status} ${res.statusText}`)
   }
@@ -96,9 +196,10 @@ export function buildProductsFromApi(docs: ApiProductDoc[]): Product[] {
     const first = withImages[0]
     const productVariants: ProductVariant[] = withImages.map((d) => {
       const imgList = Array.isArray(d.images) && d.images.length > 0 ? d.images : (d.image ? [d.image] : [])
+      const colorFromDoc = String(d.color ?? d.rang ?? '').trim()
       return {
-        skuColor: d.skuColor ?? (d.sku && d.color ? `${String(d.sku).trim()}-${String(d.color).trim().replace(/\s+/g, '-')}` : ''),
-        color: String(d.color ?? '').trim(),
+        skuColor: d.skuColor ?? (d.sku && colorFromDoc ? `${String(d.sku).trim()}-${colorFromDoc.replace(/\s+/g, '-')}` : ''),
+        color: colorFromDoc,
         price: Number(d.price) || 0,
         discountedPrice: d.discountedPrice != null ? Number(d.discountedPrice) : undefined,
         image: imageUrl(d.image ?? d.images?.[0]),
@@ -134,7 +235,10 @@ export function buildProductsFromApi(docs: ApiProductDoc[]): Product[] {
       fabric: v0.fabric,
       isNew,
       onSale,
-      colors: productVariants.map((v) => ({ name: v.color, hex: colorToHex(v.color) })),
+      colors: productVariants.map((v) => {
+        const colorName = (v.color && v.color.trim()) || colorNameFromSkuColor(v.skuColor) || 'Grey'
+        return { name: colorName, hex: colorToHex(colorName) }
+      }),
       variants: productVariants,
     }
 

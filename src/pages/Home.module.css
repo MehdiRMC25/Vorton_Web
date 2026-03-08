@@ -101,37 +101,38 @@
   padding: 40px 0;
 }
 
-.sectionHeader {
+.carouselWrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
 }
 
-.scrollActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.scrollArrow {
-  width: 34px;
-  height: 34px;
+.scrollArrowLeft,
+.scrollArrowRight {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--bg-card);
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.scrollArrow:hover {
+.scrollArrowLeft:hover,
+.scrollArrowRight:hover {
   border-color: var(--text-muted);
+  background: var(--bg-elevated);
 }
 
 .productRow {
+  flex: 1;
+  min-width: 0;
   display: flex;
   gap: 18px;
   overflow-x: auto;
@@ -140,7 +141,7 @@
 }
 
 .productRow > * {
-  flex: 0 0 min(280px, calc(100vw - 72px));
+  flex: 0 0 min(280px, calc(100vw - 120px));
 }
 
 .empty {
@@ -237,13 +238,15 @@
 }
 
 @media (max-width: 640px) {
-  .sectionHeader {
-    margin-bottom: 10px;
+  .carouselWrap {
+    gap: 8px;
   }
 
-  .scrollArrow {
-    width: 30px;
-    height: 30px;
+  .scrollArrowLeft,
+  .scrollArrowRight {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
   }
 
   .videoGrid {

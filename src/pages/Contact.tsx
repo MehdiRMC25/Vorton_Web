@@ -8,7 +8,7 @@ const MAP_EMBED =
 const CONTACT = {
   location: 'AZERBAIJAN',
   address: 'Jafar Jabbarli St, 44, Caspian Plaza, 3rd block, 506',
-  phones: ['+994 50 523 50 00', '+994 10 234 33 19', '+994 12 311 39 39'],
+  phones: ['+994 10 234 33 19', '+994 12 311 39 39'],
   email: 'info@vorton.uk',
   instagram: 'https://instagram.com/vortonnn',
   instagramHandle: 'vortonnn',
@@ -23,9 +23,9 @@ export default function Contact() {
       <div className={styles.wrap}>
         <h1 className={styles.title}>{t('contactTitle')}</h1>
 
-        {!isAzerbaijan && (
-          <p className={styles.globalIntro}>{t('contactIntro')}</p>
-        )}
+        {/*{!isAzerbaijan && (*/}
+        {/*  <p className={styles.globalIntro}>{t('contactIntro')}</p>*/}
+        {/*)}*/}
 
         <section className={styles.mapSection}>
           <div className={styles.mapWrap}>

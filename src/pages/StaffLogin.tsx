@@ -1,32 +1,26 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { AuthApiError } from '../api/auth'
 import { isValidEmail, isValidPhone, looksLikeEmail } from '../utils/validation'
 import styles from './SignIn.module.css'
 
-export default function SignIn() {
+/**
+ * Staff-only login (internal). Same auth API; after login redirects to /staff/dashboard or returnTo.
+ * Not linked from public site; staff use this URL directly.
+ */
+export default function StaffLogin() {
   const { t } = useLocale()
   const { login, loading, error, clearError } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const [searchParams] = useSearchParams()
-  const returnTo = searchParams.get('returnTo') || '/account'
+  const returnTo = searchParams.get('returnTo') || '/staff/dashboard'
 
   const [emailOrPhone, setEmailOrPhone] = useState('')
   const [password, setPassword] = useState('')
   const [localError, setLocalError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [emailOrPhoneError, setEmailOrPhoneError] = useState(false)
-
-  useEffect(() => {
-    const state = location.state as { signUpSuccess?: string } | null
-    if (state?.signUpSuccess) {
-      setSuccessMessage(state.signUpSuccess)
-      navigate(location.pathname, { replace: true, state: {} })
-    }
-  }, [location.state, location.pathname, navigate])
 
   function validateEmailOrPhone(): boolean {
     const trimmed = emailOrPhone.trim()
@@ -60,15 +54,12 @@ export default function SignIn() {
     if (!validateEmailOrPhone()) return
     try {
       await login(emailOrPhone.trim(), password)
-      navigate(returnTo, { replace: true })
+      const path = returnTo.startsWith('/') ? returnTo : `/${returnTo}`
+      navigate(path, { replace: true })
     } catch (e) {
       if (e instanceof AuthApiError) {
         if (e.status === 401) {
           setLocalError(t('accountNotFound'))
-          return
-        }
-        if (e.status === 409) {
-          setLocalError(t('accountAlreadyExists'))
           return
         }
         if (e.code === 'INVALID_CREDENTIALS') {
@@ -93,9 +84,10 @@ export default function SignIn() {
   }
 
   return (
-    <div className="container">
+    <div className={styles.staffLoginWrap}>
       <div className={styles.wrap}>
-        <h1 className={styles.title}>{t('signInTitle')}</h1>
+        <h1 className={styles.title}>{t('staffLoginTitle')}</h1>
+        <p className={styles.subtitle}>{t('internalUseOnly')}</p>
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.label}>
             {t('emailOrPhoneLabel')}
@@ -125,22 +117,15 @@ export default function SignIn() {
               required
             />
           </label>
-          {successMessage && (
-            <p className={styles.success}>
-              {successMessage}
-            </p>
-          )}
           {(localError || error) && (
-            <p className={styles.error}>
-              {localError || error}
-            </p>
+            <p className={styles.error}>{localError || error}</p>
           )}
           <button type="submit" className={styles.submit} disabled={loading}>
-            {loading ? t('signingIn') : t('signInTitle')}
+            {loading ? t('signingIn') : t('staffLoginTitle')}
           </button>
         </form>
         <p className={styles.footer}>
-          {t('dontHaveAccount')} <Link to="/signup">{t('createAccount')}</Link>
+          <Link to="/signin">{t('customerSignIn')}</Link> — <Link to="/">{t('home')}</Link>
         </p>
       </div>
     </div>

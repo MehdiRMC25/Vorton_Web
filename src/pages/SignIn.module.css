@@ -3,11 +3,25 @@
   margin: 0 auto;
 }
 
+.staffLoginWrap {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
 .title {
-  font-size: 2rem;
+  font-size: 2.375rem;
   font-weight: 700;
   margin: 0 0 24px;
   letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: -16px 0 20px;
 }
 
 .form {
@@ -22,7 +36,7 @@
   gap: 8px;
   font-weight: 500;
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: 1.4rem;
 }
 
 .input {
@@ -31,12 +45,20 @@
   border-radius: var(--radius-sm);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.375rem;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.input.inputError {
+  border-color: #dc2626;
+}
+
+.input.inputError:focus {
+  border-color: #dc2626;
 }
 
 .submit {
@@ -45,7 +67,7 @@
   background: var(--accent);
   color: white;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.125rem;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -63,19 +85,19 @@
 
 .error {
   color: #dc2626;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   margin: 0;
 }
 
 .success {
   color: #16a34a;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   margin: 0;
 }
 
 .footer {
   margin-top: 24px;
-  font-size: 0.95rem;
+  font-size: 1.225rem;
   color: var(--text-secondary);
 }
 

@@ -42,34 +42,32 @@ export default function Home() {
 
       <section className={styles.section}>
         <div className="container">
-          <div className={styles.sectionHeader}>
-            <h2 className="section-title">{t('newCollection')}</h2>
-            <div className={styles.scrollActions}>
+          <h2 className="section-title">{t('newCollection')}</h2>
+          {loading ? (
+            <p className={styles.empty}>{t('loading')}</p>
+          ) : newCollectionProducts.length > 0 ? (
+            <div className={styles.carouselWrap}>
               <button
                 type="button"
-                className={styles.scrollArrow}
+                className={styles.scrollArrowLeft}
                 aria-label="Scroll new collection left"
                 onClick={() => scrollProducts(newCollectionRef, 'left')}
               >
                 ←
               </button>
+              <div className={styles.productRow} ref={newCollectionRef}>
+                {newCollectionProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} onImageError={onImageError} />
+                ))}
+              </div>
               <button
                 type="button"
-                className={styles.scrollArrow}
+                className={styles.scrollArrowRight}
                 aria-label="Scroll new collection right"
                 onClick={() => scrollProducts(newCollectionRef, 'right')}
               >
                 →
               </button>
-            </div>
-          </div>
-          {loading ? (
-            <p className={styles.empty}>{t('loading')}</p>
-          ) : newCollectionProducts.length > 0 ? (
-            <div className={styles.productRow} ref={newCollectionRef}>
-              {newCollectionProducts.map((p) => (
-                <ProductCard key={p.id} product={p} onImageError={onImageError} />
-              ))}
             </div>
           ) : (
             <p className={styles.empty}>{t('noProductsYet')}</p>
@@ -79,34 +77,32 @@ export default function Home() {
 
       <section className={styles.section}>
         <div className="container">
-          <div className={styles.sectionHeader}>
-            <h2 className="section-title">{t('onSale')}</h2>
-            <div className={styles.scrollActions}>
+          <h2 className="section-title">{t('onSale')}</h2>
+          {loading ? (
+            <p className={styles.empty}>{t('loading')}</p>
+          ) : onSaleProducts.length > 0 ? (
+            <div className={styles.carouselWrap}>
               <button
                 type="button"
-                className={styles.scrollArrow}
+                className={styles.scrollArrowLeft}
                 aria-label="Scroll on sale left"
                 onClick={() => scrollProducts(onSaleRef, 'left')}
               >
                 ←
               </button>
+              <div className={styles.productRow} ref={onSaleRef}>
+                {onSaleProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} onImageError={onImageError} />
+                ))}
+              </div>
               <button
                 type="button"
-                className={styles.scrollArrow}
+                className={styles.scrollArrowRight}
                 aria-label="Scroll on sale right"
                 onClick={() => scrollProducts(onSaleRef, 'right')}
               >
                 →
               </button>
-            </div>
-          </div>
-          {loading ? (
-            <p className={styles.empty}>{t('loading')}</p>
-          ) : onSaleProducts.length > 0 ? (
-            <div className={styles.productRow} ref={onSaleRef}>
-              {onSaleProducts.map((p) => (
-                <ProductCard key={p.id} product={p} onImageError={onImageError} />
-              ))}
             </div>
           ) : (
             <p className={styles.empty}>{t('noItemsOnSale')}</p>

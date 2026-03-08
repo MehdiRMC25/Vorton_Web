@@ -16,16 +16,7 @@
   --accent-muted-hover: rgba(249, 115, 22, 0.28);
 }
 
-/* Azeri color scheme when Azerbaijani is selected */
-[data-locale="az"] {
-  --accent: #0092bc;
-  --accent-hover: #007a9e;
-  --accent-muted: rgba(0, 146, 188, 0.2);
-  --accent-muted-hover: rgba(0, 146, 188, 0.28);
-  --sale: #00a651;
-}
-
-
+/* Same orange accent in both English and Azerbaijani – no color change by language */
 *,
 *::before,
 *::after {

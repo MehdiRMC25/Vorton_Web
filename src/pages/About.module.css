@@ -1,18 +1,24 @@
+.aboutContainer {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
 .wrap {
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 2.2rem;
+  color: var(--accent);
   font-weight: 700;
-  margin: 0 0 32px;
+  margin: 0 0 28px;
   letter-spacing: -0.02em;
 }
 
 .content {
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-size: 1.3rem;
+  line-height: 1.6;
   color: var(--text-secondary);
   text-align: justify;
 }
@@ -22,16 +28,16 @@
 }
 
 .lead {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   color: var(--text-primary);
   font-weight: 500;
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 2em 0 0.5em;
+  margin: 2em 0 0.2em;
 }
 
 .sectionTitle:first-of-type {
@@ -51,13 +57,14 @@
 }
 
 .contact h2 {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin: 0 0 8px;
 }
 
 .contact p {
   margin: 0 0 4px;
+  font-size: 1.45rem;
 }
 
 .email {

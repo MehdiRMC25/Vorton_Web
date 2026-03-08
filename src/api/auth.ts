@@ -1,13 +1,28 @@
 import { config } from '../config'
 
+export type MembershipLevel = 'silver' | 'gold' | 'platinum'
+
+export type UserRole = 'customer' | 'employee' | 'manager'
+
 export type AuthUser = {
   id: string | number
+  role?: UserRole
   email?: string
   phone?: string
   name?: string
   first_name?: string
   last_name?: string
   membership_number?: string
+  /** Membership tier: new signups = silver; gold/platinum earned by purchases */
+  membership_level?: MembershipLevel
+  /** Loyalty/earned credits (points) */
+  loyalty_credits?: number
+  /** Total discount saved due to membership (e.g. in currency) */
+  total_discount_earned?: number
+  /** Number of orders — used for tier progression (e.g. gold after N, platinum after M) */
+  orders_count?: number
+  /** Total lifetime sales/purchases in AZN — Gold at 5000 AZN, Platinum at 10000 AZN */
+  total_sales_azn?: number
   address_line1?: string
   address_line2?: string
   city?: string
@@ -38,11 +53,17 @@ export class AuthApiError extends Error {
   }
 }
 
-type SignupPayload = {
-  fullName: string
-  mobileNumber: string
+export type SignupPayload = {
+  first_name: string
+  last_name: string
+  phone: string
+  second_phone?: string
   email?: string
-  address?: string
+  address_line1?: string
+  address_line2?: string
+  city?: string
+  postcode?: string
+  country?: string
   password: string
   confirmPassword: string
 }
@@ -57,6 +78,16 @@ function buildUrl(path: string) {
 
 function dedupePaths(paths: string[]) {
   return Array.from(new Set(paths.map(toPath)))
+}
+
+/** Returns the first string in obj that looks like a JWT (header.payload.signature). */
+function findJwtInObject(obj: Record<string, unknown>): string | undefined {
+  for (const value of Object.values(obj)) {
+    if (typeof value === 'string' && value.length > 20 && /^[\w-]+\.[\w-]+\.[\w-]+$/.test(value.trim())) {
+      return value.trim()
+    }
+  }
+  return undefined
 }
 
 async function readErrorMessage(res: Response): Promise<string> {
@@ -94,6 +125,14 @@ function toAuthUser(user: unknown): AuthUser {
   const mapped: AuthUser = {
     ...(u as AuthUser),
     id: (u.id as string | number | undefined) ?? 'user',
+    role:
+      (u.role as UserRole) === 'manager'
+        ? 'manager'
+        : (u.role as UserRole) === 'employee'
+          ? 'employee'
+          : (u.role as UserRole) === 'customer'
+            ? 'customer'
+            : undefined,
     email: typeof u.email === 'string' ? u.email : undefined,
     phone:
       (typeof u.phone === 'string' ? u.phone : undefined) ??
@@ -103,6 +142,23 @@ function toAuthUser(user: unknown): AuthUser {
     first_name: firstName || undefined,
     last_name: lastName || undefined,
     membership_number: typeof u.membership_number === 'string' ? u.membership_number : undefined,
+    membership_level:
+      (u.membership_level as 'silver' | 'gold' | 'platinum') === 'platinum'
+        ? 'platinum'
+        : (u.membership_level as 'silver' | 'gold') === 'gold'
+          ? 'gold'
+          : undefined,
+    loyalty_credits: typeof u.loyalty_credits === 'number' ? u.loyalty_credits : undefined,
+    total_discount_earned: typeof u.total_discount_earned === 'number' ? u.total_discount_earned : undefined,
+    orders_count: typeof u.orders_count === 'number' ? u.orders_count : undefined,
+    total_sales_azn:
+      typeof u.total_sales_azn === 'number'
+        ? u.total_sales_azn
+        : typeof u.total_purchases_azn === 'number'
+          ? u.total_purchases_azn
+          : typeof u.lifetime_spend_azn === 'number'
+            ? u.lifetime_spend_azn
+            : undefined,
     address_line1: addressLine1 || undefined,
     address_line2: addressLine2 || undefined,
     city: city || undefined,
@@ -145,7 +201,11 @@ async function requestWithFallback<T>(
     }
 
     if (res.status === 401 || res.status === 403) {
-      throw new AuthApiError(res.status, 'INVALID_CREDENTIALS', 'INVALID_CREDENTIALS')
+      throw new AuthApiError(
+        res.status,
+        'INVALID_CREDENTIALS',
+        message || 'Invalid credentials'
+      )
     }
     if (res.status === 409) {
       throw new AuthApiError(res.status, 'CONFLICT', message || 'Conflict')
@@ -153,22 +213,31 @@ async function requestWithFallback<T>(
     if (res.status === 400) {
       throw new AuthApiError(res.status, 'VALIDATION_ERROR', message || 'Validation failed')
     }
-    throw new AuthApiError(res.status, 'AUTH_UNAVAILABLE', message || 'Authentication service unavailable')
+    // 5xx, timeout, or other server/network failure — show unavailable
+    throw new AuthApiError(
+      res.status,
+      'AUTH_UNAVAILABLE',
+      message || 'Authentication service unavailable'
+    )
   }
 
   if (lastError instanceof Error) throw lastError
+  // No path responded OK (e.g. all 404 or network failed)
   throw new AuthApiError(503, 'AUTH_UNAVAILABLE', 'Authentication service unavailable')
 }
 
 export async function signup(payload: SignupPayload): Promise<LoginResponse> {
   const body = {
-    fullName: payload.fullName.trim(),
-    full_name: payload.fullName.trim(),
-    mobileNumber: payload.mobileNumber.trim(),
-    mobile: payload.mobileNumber.trim(),
-    phone: payload.mobileNumber.trim(),
+    first_name: payload.first_name.trim(),
+    last_name: payload.last_name.trim(),
+    phone: payload.phone.trim(),
+    second_phone: payload.second_phone?.trim() || undefined,
     email: payload.email?.trim() || undefined,
-    address: payload.address?.trim() || undefined,
+    address_line1: payload.address_line1?.trim() || undefined,
+    address_line2: payload.address_line2?.trim() || undefined,
+    city: payload.city?.trim() || undefined,
+    postcode: payload.postcode?.trim() || undefined,
+    country: payload.country?.trim() || undefined,
     password: payload.password,
     confirmPassword: payload.confirmPassword,
   }
@@ -182,12 +251,29 @@ export async function signup(payload: SignupPayload): Promise<LoginResponse> {
       body: JSON.stringify(body),
     },
     async (res) => {
-      const data = (await res.json()) as { token?: string; user?: unknown }
-      return { token: data.token ?? '', user: toAuthUser(data.user) }
+      const raw = (await res.json()) as Record<string, unknown>
+      const data = (raw.data as Record<string, unknown> | undefined) ?? raw
+      const token =
+        (data.token as string | undefined) ??
+        (data.access_token as string | undefined) ??
+        (data.accessToken as string | undefined) ??
+        (data.jwt as string | undefined) ??
+        (data.authToken as string | undefined) ??
+        (raw.token as string | undefined) ??
+        (raw.access_token as string | undefined) ??
+        (raw.accessToken as string | undefined) ??
+        (raw.jwt as string | undefined) ??
+        ''
+      const userPayload = data.user ?? data.customer ?? raw.user ?? raw.customer
+      return { token, user: toAuthUser(userPayload) }
     }
   )
 }
 
+/**
+ * Login: expects JSON body with a token (JWT). No cookie or server-side session.
+ * Reads response.token (or access_token, jwt, etc.), stores it, use Authorization: Bearer <token> for API calls.
+ */
 export async function login(emailOrPhone: string, password: string): Promise<LoginResponse> {
   const payload = {
     email: emailOrPhone.trim(),
@@ -207,8 +293,32 @@ export async function login(emailOrPhone: string, password: string): Promise<Log
       body: JSON.stringify(payload),
     },
     async (res) => {
-      const data = (await res.json()) as { token?: string; user?: unknown }
-      return { token: data.token ?? '', user: toAuthUser(data.user) }
+      const parsed = await res.json()
+      // Backend may return the JWT as a plain string body
+      if (typeof parsed === 'string' && parsed.length > 0) {
+        return { token: parsed.trim(), user: toAuthUser(undefined) }
+      }
+      const raw = parsed as Record<string, unknown>
+      const data = (raw.data as Record<string, unknown> | undefined) ?? raw
+      // Backend returns { "user": {...}, "token": "<jwt>" } on 200. Read token from body (no cookie/session).
+      const token =
+        (raw.token as string | undefined) ??
+        (data.token as string | undefined) ??
+        (raw.Token as string | undefined) ??
+        (data.Token as string | undefined) ??
+        (raw.access_token as string | undefined) ??
+        (data.access_token as string | undefined) ??
+        (raw.accessToken as string | undefined) ??
+        (data.accessToken as string | undefined) ??
+        (raw.jwt as string | undefined) ??
+        (data.jwt as string | undefined) ??
+        (raw.authToken as string | undefined) ??
+        (data.authToken as string | undefined) ??
+        findJwtInObject(raw) ??
+        findJwtInObject(data) ??
+        ''
+      const userPayload = data.user ?? data.User ?? raw.user ?? raw.User ?? data.customer ?? raw.customer
+      return { token, user: toAuthUser(userPayload) }
     }
   )
 }

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
 import { useAuth } from '../context/AuthContext'
 import { AuthApiError } from '../api/auth'
+import { isValidEmail, isValidPhone } from '../utils/validation'
 import styles from './SignIn.module.css'
 
 export default function SignUp() {
@@ -11,34 +12,93 @@ export default function SignUp() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [name, setName] = useState('')
-  const [mobile, setMobile] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [secondPhone, setSecondPhone] = useState('')
   const [email, setEmail] = useState('')
-  const [address, setAddress] = useState('')
+  const [addressLine1, setAddressLine1] = useState('')
+  const [addressLine2, setAddressLine2] = useState('')
+  const [city, setCity] = useState('')
+  const [postcode, setPostcode] = useState('')
+  const [country, setCountry] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [phoneError, setPhoneError] = useState(false)
+  const [secondPhoneError, setSecondPhoneError] = useState(false)
+  const [emailError, setEmailError] = useState(false)
+
+  function validateForm(): boolean {
+    setMessage(null)
+    setPhoneError(false)
+    setSecondPhoneError(false)
+    setEmailError(false)
+    if (!isValidPhone(phone)) {
+      setPhoneError(true)
+      setMessage({ type: 'error', text: t('invalidMobileNumber') })
+      return false
+    }
+    if (secondPhone.trim() && !isValidPhone(secondPhone)) {
+      setSecondPhoneError(true)
+      setMessage({ type: 'error', text: t('invalidMobileNumber') })
+      return false
+    }
+    if (email.trim() && !isValidEmail(email)) {
+      setEmailError(true)
+      setMessage({ type: 'error', text: t('invalidEmail') })
+      return false
+    }
+    if (password && password !== confirmPassword) {
+      setMessage({ type: 'error', text: t('passwordMismatch') })
+      return false
+    }
+    return true
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setMessage(null)
-    if (password && password !== confirmPassword) {
-      setMessage({ type: 'error', text: t('passwordMismatch') })
-      return
-    }
+    if (!validateForm()) return
     setLoading(true)
+    setMessage(null)
     try {
-      await signup({
-        name,
-        phone: mobile,
-        email,
-        address,
+      const { hasSession } = await signup({
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone.trim(),
+        second_phone: secondPhone.trim() || undefined,
+        email: email.trim() || undefined,
+        address_line1: addressLine1 || undefined,
+        address_line2: addressLine2 || undefined,
+        city: city || undefined,
+        postcode: postcode || undefined,
+        country: country || undefined,
         password,
         confirmPassword,
       })
-      setMessage({ type: 'success', text: t('signUpSuccess') })
-      navigate('/account', { replace: true })
+      const successText = t('signUpSuccess')
+      setMessage({ type: 'success', text: successText })
+      if (hasSession) {
+        setTimeout(() => navigate('/account', { replace: true }), 1500)
+      } else {
+        setTimeout(
+          () => navigate('/signin', { replace: true, state: { signUpSuccess: successText } }),
+          1500
+        )
+      }
     } catch (e) {
       if (e instanceof AuthApiError) {
+        if (e.status === 400) {
+          setMessage({ type: 'error', text: e.message || t('invalidEmail') })
+          return
+        }
+        if (e.status === 401) {
+          setMessage({ type: 'error', text: t('accountNotFound') })
+          return
+        }
+        if (e.status === 409) {
+          setMessage({ type: 'error', text: t('accountAlreadyExists') })
+          return
+        }
         if (e.code === 'INVALID_CREDENTIALS') {
           setMessage({ type: 'error', text: t('invalidCredentialsSignUp') })
           return
@@ -64,14 +124,28 @@ export default function SignUp() {
         <h1 className={styles.title}>{t('createAccount')}</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.label}>
-            {t('nameLabel')} *
+            {t('firstNameLabel')} *
             <input
               type="text"
-              autoComplete="name"
+              autoComplete="given-name"
               className={styles.input}
-              placeholder={t('nameLabel')}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder={t('firstNameLabel')}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              maxLength={100}
+              required
+            />
+          </label>
+          <label className={styles.label}>
+            {t('lastNameLabel')} *
+            <input
+              type="text"
+              autoComplete="family-name"
+              className={styles.input}
+              placeholder={t('lastNameLabel')}
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              maxLength={100}
               required
             />
           </label>
@@ -80,11 +154,30 @@ export default function SignUp() {
             <input
               type="tel"
               autoComplete="tel"
-              className={styles.input}
+              className={`${styles.input} ${phoneError ? styles.inputError : ''}`}
               placeholder="+994..."
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value)
+                if (phoneError) setPhoneError(false)
+              }}
+              maxLength={30}
               required
+            />
+          </label>
+          <label className={styles.label}>
+            {t('mobileOptional2')}
+            <input
+              type="tel"
+              autoComplete="tel"
+              className={`${styles.input} ${secondPhoneError ? styles.inputError : ''}`}
+              placeholder="+994..."
+              value={secondPhone}
+              onChange={(e) => {
+                setSecondPhone(e.target.value)
+                if (secondPhoneError) setSecondPhoneError(false)
+              }}
+              maxLength={30}
             />
           </label>
           <label className={styles.label}>
@@ -92,21 +185,74 @@ export default function SignUp() {
             <input
               type="email"
               autoComplete="email"
-              className={styles.input}
+              className={`${styles.input} ${emailError ? styles.inputError : ''}`}
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (emailError) setEmailError(false)
+              }}
+              maxLength={150}
             />
           </label>
           <label className={styles.label}>
-            {t('addressOptional')}
+            {t('addressLine1Label')}
             <input
               type="text"
-              autoComplete="street-address"
+              autoComplete="address-line1"
               className={styles.input}
               placeholder=""
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={addressLine1}
+              onChange={(e) => setAddressLine1(e.target.value)}
+              maxLength={255}
+            />
+          </label>
+          <label className={styles.label}>
+            {t('addressLine2Label')}
+            <input
+              type="text"
+              autoComplete="address-line2"
+              className={styles.input}
+              placeholder=""
+              value={addressLine2}
+              onChange={(e) => setAddressLine2(e.target.value)}
+              maxLength={255}
+            />
+          </label>
+          <label className={styles.label}>
+            {t('cityLabel')}
+            <input
+              type="text"
+              autoComplete="address-level2"
+              className={styles.input}
+              placeholder=""
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              maxLength={100}
+            />
+          </label>
+          <label className={styles.label}>
+            {t('postcodeLabel')}
+            <input
+              type="text"
+              autoComplete="postal-code"
+              className={styles.input}
+              placeholder=""
+              value={postcode}
+              onChange={(e) => setPostcode(e.target.value)}
+              maxLength={20}
+            />
+          </label>
+          <label className={styles.label}>
+            {t('countryLabel')}
+            <input
+              type="text"
+              autoComplete="country-name"
+              className={styles.input}
+              placeholder=""
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              maxLength={100}
             />
           </label>
           <label className={styles.label}>
