@@ -33,6 +33,18 @@
   color: #fff;
 }
 
+.accountBadge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #a3a3a3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 16px;
+  padding: 4px 10px;
+  border: 1px solid #525252;
+  border-radius: 6px;
+}
+
 .nav {
   display: flex;
   align-items: center;

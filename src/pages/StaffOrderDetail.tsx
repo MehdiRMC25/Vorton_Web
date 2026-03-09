@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { getOrderById, updateOrderStatus, type Order, type OrderStatus } from '../api/orders'
+import { getDemoOrderById } from '../data/demoOrders'
 import { useOrdersSocket } from '../hooks/useOrdersSocket'
 import styles from './OrderDetail.module.css'
 
@@ -31,15 +32,27 @@ export default function StaffOrderDetail() {
   const [updating, setUpdating] = useState(false)
 
   const fetchOrder = useCallback(async () => {
-    if (!id || !token) return
+    if (!id) return
     setError(null)
+    if (id.startsWith('demo-')) {
+      const demoOrder = getDemoOrderById(id)
+      if (demoOrder) {
+        setOrder(demoOrder)
+        setSelectedStatus(demoOrder.status === 'NEW' ? 'PROCESSING' : demoOrder.status)
+      } else {
+        setOrder(null)
+      }
+      setLoading(false)
+      return
+    }
+    if (!token) return
     try {
       const data = await getOrderById(id, token)
       setOrder(data)
       setSelectedStatus(data.status === 'NEW' ? 'PROCESSING' : data.status)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load order')
       setOrder(null)
+      setError(e instanceof Error ? e.message : 'Failed to load order')
     } finally {
       setLoading(false)
     }
@@ -58,7 +71,21 @@ export default function StaffOrderDetail() {
 
   async function handleUpdateStatus(e: React.FormEvent) {
     e.preventDefault()
-    if (!id || !token || !selectedStatus || selectedStatus === order?.status) return
+    if (!id || !selectedStatus || selectedStatus === order?.status) return
+    if (id.startsWith('demo-')) {
+      if (order) {
+        setOrder({
+          ...order,
+          status: selectedStatus as OrderStatus,
+          status_history: [
+            ...(order.status_history || []),
+            { status: selectedStatus as OrderStatus, created_at: new Date().toISOString() },
+          ],
+        })
+      }
+      return
+    }
+    if (!token) return
     setUpdating(true)
     try {
       const updated = await updateOrderStatus(id, selectedStatus as OrderStatus, token)
@@ -138,6 +165,12 @@ export default function StaffOrderDetail() {
       <h1 className={styles.title}>
         {t('orderDetails')} — {order.order_number}
       </h1>
+
+      {id?.startsWith('demo-') && (
+        <p style={{ marginBottom: 12, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          Demo order. Status change updates the preview only.
+        </p>
+      )}
 
       {error && <p className={styles.error}>{error}</p>}
 

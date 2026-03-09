@@ -9,6 +9,7 @@ import {
   type OrderStatsItem,
   type OrderStatus,
 } from '../api/orders'
+import { DEMO_ORDERS, DEMO_STATS } from '../data/demoOrders'
 import { useOrdersSocket } from '../hooks/useOrdersSocket'
 import type { UserRole } from '../api/auth'
 import styles from './Orders.module.css'
@@ -43,10 +44,10 @@ export default function StaffOrders() {
     setError(null)
     try {
       const list = await getOrders(token)
-      setOrders(list)
+      setOrders(list.length > 0 ? list : DEMO_ORDERS)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load orders')
-      setOrders([])
+      setOrders(DEMO_ORDERS)
     } finally {
       setLoading(false)
     }
@@ -56,9 +57,9 @@ export default function StaffOrders() {
     if (!token || !isManager) return
     try {
       const data = await getOrdersStats(token)
-      setStats(data)
+      setStats(data.length > 0 ? data : DEMO_STATS)
     } catch {
-      setStats([])
+      setStats(DEMO_STATS)
     }
   }, [token, isManager])
 
@@ -96,6 +97,11 @@ export default function StaffOrders() {
       <h1 className={styles.title}>{t('allOrders')}</h1>
       <p className={styles.subtitle}>
         View and manage orders. Status updates appear in real time.
+        {orders.length > 0 && orders[0].id.startsWith('demo-') && (
+          <span style={{ display: 'block', marginTop: 8, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            Showing demo data. Remove when backend has real orders.
+          </span>
+        )}
       </p>
 
       {isManager && stats.length > 0 && (

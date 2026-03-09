@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLocale } from '../context/LocaleContext'
 import { getOrdersStats } from '../api/orders'
+import { DEMO_STATS } from '../data/demoOrders'
 import { useState, useEffect } from 'react'
 import type { OrderStatsItem, OrderStatus } from '../api/orders'
 import type { UserRole } from '../api/auth'
@@ -18,14 +19,26 @@ export default function StaffDashboard() {
   const { t } = useLocale()
   const { user, token } = useAuth()
   const [stats, setStats] = useState<OrderStatsItem[]>([])
+  const [showingDemoStats, setShowingDemoStats] = useState(false)
   const role: UserRole = (user?.role as UserRole) ?? 'customer'
   const isManager = role === 'manager'
 
   useEffect(() => {
     if (!token || !isManager) return
     getOrdersStats(token)
-      .then(setStats)
-      .catch(() => setStats([]))
+      .then((data) => {
+        if (data.length > 0) {
+          setStats(data)
+          setShowingDemoStats(false)
+        } else {
+          setStats(DEMO_STATS)
+          setShowingDemoStats(true)
+        }
+      })
+      .catch(() => {
+        setStats(DEMO_STATS)
+        setShowingDemoStats(true)
+      })
   }, [token, isManager])
 
   return (
@@ -36,14 +49,21 @@ export default function StaffDashboard() {
       </p>
 
       {isManager && stats.length > 0 && (
-        <div className={styles.statsRow} style={{ marginBottom: 24 }}>
-          {stats.map((s) => (
-            <div key={s.status} className={styles.statCard}>
-              <div className={styles.statLabel}>{t(STATUS_KEYS[s.status])}</div>
-              <div className={styles.statValue}>{s.count}</div>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className={styles.statsRow} style={{ marginBottom: 8 }}>
+            {stats.map((s) => (
+              <div key={s.status} className={styles.statCard}>
+                <div className={styles.statLabel}>{t(STATUS_KEYS[s.status])}</div>
+                <div className={styles.statValue}>{s.count}</div>
+              </div>
+            ))}
+          </div>
+          {showingDemoStats && (
+            <p style={{ marginBottom: 24, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+              Demo stats. Remove when backend has real data.
+            </p>
+          )}
+        </>
       )}
 
       <p>

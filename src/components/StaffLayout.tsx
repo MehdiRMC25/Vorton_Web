@@ -1,11 +1,17 @@
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLocale } from '../context/LocaleContext'
+import type { UserRole } from '../api/auth'
 import styles from './StaffLayout.module.css'
 
 export default function StaffLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { t } = useLocale()
+  const { user, logout } = useAuth()
+  const role: UserRole = (user?.role as UserRole) ?? 'employee'
+  const isManager = role === 'manager'
+  const accountLabel = isManager ? t('managerAccount') : t('staffAccount')
 
   function handleSignOut() {
     logout()
@@ -19,6 +25,7 @@ export default function StaffLayout() {
           <Link to="/staff/dashboard" className={styles.brand}>
             Vorton Staff
           </Link>
+          <span className={styles.accountBadge}>{accountLabel}</span>
           <nav className={styles.nav}>
             <Link
               to="/staff/dashboard"
