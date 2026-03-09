@@ -40,6 +40,12 @@ export default function StaffLayout() {
               Orders
             </Link>
             <Link
+              to="/staff/sales"
+              className={location.pathname === '/staff/sales' ? styles.navActive : ''}
+            >
+              Sales
+            </Link>
+            <Link
               to="/staff/production"
               className={location.pathname === '/staff/production' ? styles.navActive : ''}
             >

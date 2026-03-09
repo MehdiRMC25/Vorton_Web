@@ -241,7 +241,9 @@ export default function StaffOrderDetail() {
         <table className={styles.itemsTable}>
           <thead>
             <tr>
+              <th>SKU-Color</th>
               <th>Item</th>
+              <th>Size</th>
               <th>Qty</th>
               <th>Price</th>
               <th>Subtotal</th>
@@ -250,7 +252,9 @@ export default function StaffOrderDetail() {
           <tbody>
             {order.items.map((item, i) => (
               <tr key={i}>
+                <td className={styles.skuCode}>{item.sku_color ?? '—'}</td>
                 <td>{item.name}</td>
+                <td>{item.size ?? '—'}</td>
                 <td>{item.quantity}</td>
                 <td>{Number(item.price).toFixed(2)}</td>
                 <td>{(item.quantity * Number(item.price)).toFixed(2)}</td>

@@ -146,7 +146,8 @@ export default function StaffOrders() {
                 <th>{t('orderNumber')}</th>
                 <th>Customer</th>
                 <th>{t('orderStatus')}</th>
-                <th>{t('orderDate')}</th>
+                <th>{t('orderColumn')}</th>
+                <th>{t('deliveryColumn')}</th>
                 <th>{t('orderTotal')}</th>
                 <th></th>
               </tr>
@@ -164,6 +165,11 @@ export default function StaffOrders() {
                     </span>
                   </td>
                   <td>{formatDate(order.order_date)}</td>
+                  <td>
+                    {order.status === 'DELIVERED' && order.delivery_due_date
+                      ? formatDate(order.delivery_due_date)
+                      : '—'}
+                  </td>
                   <td>{order.total_price.toFixed(2)}</td>
                   <td>
                     <Link to={`/staff/orders/${order.id}`} className={styles.link}>

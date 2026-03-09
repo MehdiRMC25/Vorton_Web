@@ -28,7 +28,6 @@ export default function Layout() {
         <div className={styles.headerInner}>
           <Link to="/" className={styles.logo}>
             <img src={vortonLogo} alt="Vorton" className={styles.logoIcon} />
-            <span>Vorton</span>
           </Link>
           <div className={styles.navWrap}>
           <nav className={styles.nav}>

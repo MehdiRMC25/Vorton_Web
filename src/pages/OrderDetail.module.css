@@ -1,5 +1,5 @@
 .wrap {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
@@ -64,10 +64,10 @@
   font-weight: 600;
 }
 
-.statusNew { background: #dbeafe; color: #1e40af; }
-.statusProcessing { background: #fef3c7; color: #92400e; }
-.statusDispatched { background: #e0e7ff; color: #3730a3; }
-.statusDelivered { background: #d1fae5; color: #065f46; }
+.statusNew { background: #fecaca; color: #b91c1c; }
+.statusProcessing { background: #fde047; color: #a16207; }
+.statusDispatched { background: #c7d2fe; color: #4f46e5; }
+.statusDelivered { background: #86efac; color: #15803d; }
 
 .statusSection {
   display: flex;
@@ -129,6 +129,12 @@
   letter-spacing: 0.04em;
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+.itemsTable .skuCode {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+  font-size: 0.875em;
+  color: var(--text-secondary);
 }
 
 .historyList {

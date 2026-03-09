@@ -20,6 +20,7 @@ import StaffDashboard from './pages/StaffDashboard'
 import StaffOrders from './pages/StaffOrders'
 import StaffOrderDetail from './pages/StaffOrderDetail'
 import StaffProduction from './pages/StaffProduction'
+import StaffSales from './pages/StaffSales'
 import { CartProvider } from './context/CartContext'
 import { ProductsProvider } from './context/ProductsContext'
 import { LocaleProvider } from './context/LocaleContext'
@@ -42,6 +43,7 @@ function App() {
                       <Route path="dashboard" element={<StaffDashboard />} />
                       <Route path="orders" element={<StaffOrders />} />
                       <Route path="orders/:id" element={<StaffOrderDetail />} />
+                      <Route path="sales" element={<StaffSales />} />
                       <Route path="production" element={<StaffProduction />} />
                     </Route>
                   </Route>

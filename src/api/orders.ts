@@ -7,6 +7,10 @@ export interface OrderItem {
   quantity: number
   price: number
   product_id?: string
+  /** SKU–color code (e.g. VORT-TWHT) */
+  sku_color?: string
+  /** Size (e.g. S, M, L) */
+  size?: string
   [key: string]: unknown
 }
 
@@ -36,6 +40,26 @@ export interface Order {
 export interface OrderStatsItem {
   status: OrderStatus
   count: number
+}
+
+/** Payload for manually creating an order (Sales page). Backend creates order with status NEW. If customer_id omitted, backend creates a new customer (name, mobile, address), uses the new id, attaches to mobile, persists in PostgreSQL, then creates the order. */
+export interface CreateOrderPayload {
+  /** Optional. If provided, link order to this customer; otherwise backend creates a new customer. */
+  customer_id?: number
+  customer_name: string
+  mobile: string
+  address?: string | null
+  membership_level: Order['membership_level']
+  order_date: string
+  delivery_due_date?: string | null
+  items: Array<{
+    name: string
+    quantity: number
+    price: number
+    sku_color?: string
+    size?: string
+    product_id?: string
+  }>
 }
 
 const BASE = config.ordersApiBaseUrl
@@ -92,6 +116,16 @@ export async function getOrdersByCustomer(customerId: string | number, token: st
 /** GET /orders/:id — single order with status_history */
 export async function getOrderById(orderId: string, token: string): Promise<Order> {
   const res = await fetch(`${BASE}/orders/${orderId}`, { headers: authHeaders(token) })
+  return handleResponse(res, () => res.json())
+}
+
+/** POST /orders — create order manually (Sales). Backend returns created order with status NEW. */
+export async function createOrder(payload: CreateOrderPayload, token: string): Promise<Order> {
+  const res = await fetch(`${BASE}/orders`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(payload),
+  })
   return handleResponse(res, () => res.json())
 }
 

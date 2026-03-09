@@ -1,7 +1,8 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
 import { useCart } from '../context/CartContext'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { confirmPayment } from '../api/payment'
 import styles from './PaymentDone.module.css'
 
 const SUCCESS_STATUSES = ['FullyPaid', 'Paid', 'Success']
@@ -12,6 +13,8 @@ export default function PaymentDone() {
   const { clearCart } = useCart()
   const [searchParams] = useSearchParams()
   const status = (searchParams.get('STATUS') ?? '').trim()
+  const bankOrderId = searchParams.get('ID') ?? ''
+  const confirmSent = useRef(false)
 
   const isSuccess = SUCCESS_STATUSES.includes(status)
   const isCancelled = CANCELLED_STATUSES.includes(status)
@@ -19,7 +22,13 @@ export default function PaymentDone() {
 
   useEffect(() => {
     if (isSuccess) clearCart()
-  }, [isSuccess, clearCart])
+  }, [isSuccess])
+
+  useEffect(() => {
+    if (!isSuccess || !bankOrderId || confirmSent.current) return
+    confirmSent.current = true
+    confirmPayment(bankOrderId, status).catch(() => {})
+  }, [isSuccess, bankOrderId, status])
 
   const title = isSuccess
     ? t('paymentSuccess')

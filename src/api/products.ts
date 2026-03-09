@@ -45,7 +45,6 @@ const COLOR_HEX: Record<string, string> = {
   'Tünd Mavi': '#1e3a5f',
   Bənövşəyi: '#7c3aed',
   Qara: '#1a1a1a',
-  Boz: '#8b7355',
   Ağ: '#f5f5f5',
   Qırmızı: '#dc2626',
   Yaşıl: '#16a34a',
