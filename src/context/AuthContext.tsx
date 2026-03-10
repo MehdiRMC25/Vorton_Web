@@ -61,12 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(me)
         if (typeof window !== 'undefined') localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
       } catch {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(STORAGE_KEY)
-          localStorage.removeItem(STORAGE_USER_KEY)
-        }
-        setToken(null)
-        setUser(null)
+        // Keep token and stored user so refresh doesn't drop the session
+        // (auth/me may 401 temporarily; per-page API calls handle 401 as needed)
       } finally {
         setLoading(false)
       }

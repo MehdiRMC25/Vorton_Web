@@ -156,6 +156,10 @@
 .membershipCard_gold .membershipNumberBand .membershipNumber { color: #1a1508; }
 .membershipCard_platinum .membershipNumberBand .membershipNumber { color: #f1f5f9; }
 
+.membershipCard_silver .membershipCardName { color: #111827; }
+.membershipCard_gold .membershipCardName { color: #1a1508; }
+.membershipCard_platinum .membershipCardName { color: #f1f5f9; }
+
 /* Two columns under the band */
 .membershipDetails {
   display: grid;
@@ -196,6 +200,17 @@
   padding-top: 8px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
+}
+
+/* Full name in bottom-right; absolutely positioned so card layout is unchanged */
+.membershipCardName {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
 }
 
 .membershipCard_gold .membershipBenefits { border-top-color: rgba(0, 0, 0, 0.12); }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Product } from '../types'
 import { fetchProducts } from '../api/products'
 
@@ -6,6 +6,7 @@ type ProductsState = {
   products: Product[]
   loading: boolean
   error: string | null
+  retry: () => void
 }
 
 const ProductsContext = createContext<ProductsState | null>(null)
@@ -15,14 +16,29 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     products: [],
     loading: true,
     error: null,
+    retry: () => {},
   })
+
+  const retry = useCallback(() => {
+    setState((s) => ({ ...s, loading: true, error: null }))
+    fetchProducts()
+      .then((products) => setState({ products, loading: false, error: null, retry }))
+      .catch((err) =>
+        setState({
+          products: [],
+          loading: false,
+          error: err instanceof Error ? err.message : 'Failed to load products',
+          retry,
+        })
+      )
+  }, [])
 
   useEffect(() => {
     let cancelled = false
-    setState((s) => ({ ...s, loading: true, error: null }))
+    setState((s) => ({ ...s, loading: true, error: null, retry }))
     fetchProducts()
       .then((products) => {
-        if (!cancelled) setState({ products, loading: false, error: null })
+        if (!cancelled) setState({ products, loading: false, error: null, retry })
       })
       .catch((err) => {
         if (!cancelled)
@@ -30,12 +46,13 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
             products: [],
             loading: false,
             error: err instanceof Error ? err.message : 'Failed to load products',
+            retry,
           })
       })
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [retry])
 
   return (
     <ProductsContext.Provider value={state}>

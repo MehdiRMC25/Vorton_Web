@@ -27,6 +27,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     orders: 'Sifarişlər',
     orderNumber: 'Sifariş nömrəsi',
     orderStatus: 'Status',
+    customer: 'Müştəri',
+    items: 'Məhsullar',
     orderDate: 'Tarix',
     orderColumn: 'Sifariş',
     deliveryColumn: 'Çatdırılma',
@@ -106,6 +108,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     articles: 'Məqalələr',
     loading: 'Yüklənir…',
     noProductsYet: 'Hələ məhsul yoxdur.',
+    retryOrReload: 'Yenidən',
     noItemsOnSale: 'Hazırda endirimdə məhsul yoxdur.',
 
     back: '← Geri',
@@ -231,6 +234,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     orders: 'Orders',
     orderNumber: 'Order number',
     orderStatus: 'Status',
+    customer: 'Customer',
+    items: 'Items',
     orderDate: 'Date',
     orderColumn: 'Order',
     deliveryColumn: 'Delivery',
@@ -310,6 +315,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     articles: 'Articles',
     loading: 'Loading…',
     noProductsYet: 'No products yet.',
+    retryOrReload: 'Retry',
     noItemsOnSale: 'No items on sale right now.',
 
     back: '← Back',

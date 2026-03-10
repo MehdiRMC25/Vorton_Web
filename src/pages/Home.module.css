@@ -1,3 +1,38 @@
+.errorBlock {
+  padding: 48px 24px 24px;
+  text-align: center;
+}
+
+.errorMessage {
+  margin: 0 0 16px;
+  color: var(--sale, #16a34a);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent, #c2410c);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.retryBtn:hover {
+  background: var(--accent-hover, #9a3412);
+}
+
+.retryBtn:active {
+  transform: scale(0.98);
+}
+
 .hero {
   position: relative;
   min-height: 500px;

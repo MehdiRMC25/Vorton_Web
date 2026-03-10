@@ -126,6 +126,7 @@ export default function Account() {
                   ))}
                 </ul>
               </div>
+              <p className={styles.membershipCardName} aria-hidden="true">{displayName}</p>
             </div>
           </article>
           <p className={styles.tierThresholds}>{t('tierThresholds')}</p>

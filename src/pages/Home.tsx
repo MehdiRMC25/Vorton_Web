@@ -7,7 +7,7 @@ import styles from './Home.module.css'
 
 export default function Home() {
   const { t } = useLocale()
-  const { products, loading, error } = useProducts()
+  const { products, loading, error, retry } = useProducts()
   const [failedImageIds, setFailedImageIds] = useState<Set<string>>(new Set())
   const newCollectionRef = useRef<HTMLDivElement | null>(null)
   const onSaleRef = useRef<HTMLDivElement | null>(null)
@@ -35,8 +35,11 @@ export default function Home() {
       </section>
 
       {error && (
-        <div className="container" style={{ paddingTop: 24 }}>
-          <p style={{ color: 'var(--sale)' }}>{error}</p>
+        <div className={`container ${styles.errorBlock}`}>
+          <p className={styles.errorMessage}>{error}</p>
+          <button type="button" className={styles.retryBtn} onClick={retry}>
+            {t('retryOrReload')}
+          </button>
         </div>
       )}
 

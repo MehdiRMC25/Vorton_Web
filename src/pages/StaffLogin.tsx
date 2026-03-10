@@ -15,7 +15,8 @@ export default function StaffLogin() {
   const { login, loading, error, clearError } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const returnTo = searchParams.get('returnTo') || '/staff/dashboard'
+  const rawReturn = searchParams.get('returnTo') || '/staff/orders'
+  const returnTo = rawReturn.match(/^\/staff\/orders\/[^/]+$/i) ? '/staff/orders' : rawReturn
 
   const [emailOrPhone, setEmailOrPhone] = useState('')
   const [password, setPassword] = useState('')

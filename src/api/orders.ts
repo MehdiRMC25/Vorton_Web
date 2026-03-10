@@ -71,6 +71,14 @@ function authHeaders(token: string): HeadersInit {
   }
 }
 
+export class OrdersApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 async function handleResponse<T>(res: Response, parse: () => Promise<T>): Promise<T> {
   if (!res.ok) {
     const text = await res.text()
@@ -81,14 +89,17 @@ async function handleResponse<T>(res: Response, parse: () => Promise<T>): Promis
     } catch {
       if (text) message = text.slice(0, 200)
     }
-    throw new Error(message)
+    throw new OrdersApiError(message, res.status)
   }
   return parse()
 }
 
 /** GET /orders — employee, manager */
 export async function getOrders(token: string): Promise<Order[]> {
-  const res = await fetch(`${BASE}/orders`, { headers: authHeaders(token) })
+  const res = await fetch(`${BASE}/orders`, {
+    headers: authHeaders(token),
+    cache: 'no-store',
+  })
   return handleResponse(res, async () => {
     const data = (await res.json()) as { orders?: Order[] }
     return Array.isArray(data.orders) ? data.orders : []
@@ -97,7 +108,10 @@ export async function getOrders(token: string): Promise<Order[]> {
 
 /** GET /orders/stats — manager */
 export async function getOrdersStats(token: string): Promise<OrderStatsItem[]> {
-  const res = await fetch(`${BASE}/orders/stats`, { headers: authHeaders(token) })
+  const res = await fetch(`${BASE}/orders/stats`, {
+    headers: authHeaders(token),
+    cache: 'no-store',
+  })
   return handleResponse(res, async () => {
     const data = (await res.json()) as { stats?: OrderStatsItem[] }
     return Array.isArray(data.stats) ? data.stats : []
@@ -106,7 +120,10 @@ export async function getOrdersStats(token: string): Promise<OrderStatsItem[]> {
 
 /** GET /orders/customer/:customerId — customer (own), employee, manager */
 export async function getOrdersByCustomer(customerId: string | number, token: string): Promise<Order[]> {
-  const res = await fetch(`${BASE}/orders/customer/${customerId}`, { headers: authHeaders(token) })
+  const res = await fetch(`${BASE}/orders/customer/${customerId}`, {
+    headers: authHeaders(token),
+    cache: 'no-store',
+  })
   return handleResponse(res, async () => {
     const data = (await res.json()) as { orders?: Order[] }
     return Array.isArray(data.orders) ? data.orders : []
@@ -115,7 +132,10 @@ export async function getOrdersByCustomer(customerId: string | number, token: st
 
 /** GET /orders/:id — single order with status_history */
 export async function getOrderById(orderId: string, token: string): Promise<Order> {
-  const res = await fetch(`${BASE}/orders/${orderId}`, { headers: authHeaders(token) })
+  const res = await fetch(`${BASE}/orders/${orderId}`, {
+    headers: authHeaders(token),
+    cache: 'no-store',
+  })
   return handleResponse(res, () => res.json())
 }
 
