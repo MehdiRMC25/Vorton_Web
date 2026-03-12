@@ -108,7 +108,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     articles: 'Məqalələr',
     loading: 'Yüklənir…',
     noProductsYet: 'Hələ məhsul yoxdur.',
-    retryOrReload: 'Yenidən',
+    retryOrReload: 'Yenilə',
     noItemsOnSale: 'Hazırda endirimdə məhsul yoxdur.',
 
     back: '← Geri',
@@ -315,7 +315,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     articles: 'Articles',
     loading: 'Loading…',
     noProductsYet: 'No products yet.',
-    retryOrReload: 'Retry',
+    retryOrReload: 'Refresh',
     noItemsOnSale: 'No items on sale right now.',
 
     back: '← Back',

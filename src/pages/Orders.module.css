@@ -95,6 +95,25 @@
   font-size: 0.95rem;
 }
 
+.refreshBtn {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  background: var(--bg-card);
+  border-color: var(--accent);
+}
+
+.refreshBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .tableWrap {
   overflow-x: auto;
   border: 1px solid var(--border);

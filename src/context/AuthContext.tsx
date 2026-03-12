@@ -56,13 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null)
         }
       }
+      // Only call getMe when we have token but no user (e.g. token from another tab).
+      // When we have storedUser from login, skip getMe to avoid 401s from auth/me.
+      if (storedUser) {
+        setLoading(false)
+        return
+      }
       try {
         const me = await getMe(stored)
         setUser(me)
         if (typeof window !== 'undefined') localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
       } catch {
-        // Keep token and stored user so refresh doesn't drop the session
-        // (auth/me may 401 temporarily; per-page API calls handle 401 as needed)
+        // Keep token so protected routes still work (orders API validates token)
+        // auth/me may 401 due to backend config; token can still work for other endpoints
       } finally {
         setLoading(false)
       }
@@ -76,7 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await apiLogin(emailOrPhone, password)
       if (res.token) {
-        const me = await getMe(res.token).catch(() => res.user)
+        // Use user from login response; skip getMe to avoid 401 from auth/me
+        const me = res.user
         if (typeof window !== 'undefined') {
           localStorage.setItem(STORAGE_KEY, res.token)
           localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))
@@ -102,7 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await apiSignup(data)
       if (res.token) {
-        const me = await getMe(res.token).catch(() => res.user)
+        // Use user from signup response; skip getMe to avoid 401 from auth/me
+        const me = res.user
         if (typeof window !== 'undefined') {
           localStorage.setItem(STORAGE_KEY, res.token)
           localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(me))

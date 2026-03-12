@@ -161,6 +161,17 @@ export default function StaffOrders() {
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          className={styles.refreshBtn}
+          onClick={() => {
+            setLoading(true)
+            fetchOrders()
+          }}
+          disabled={!token || loading}
+        >
+          Refresh
+        </button>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
