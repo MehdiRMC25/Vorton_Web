@@ -203,14 +203,20 @@ export default function StaffOrders() {
                     <strong>{order.order_number}</strong>
                   </td>
                   <td className={styles.customerCell}>
-                    <span className={styles.customerName}>{order.customer_name || '—'}</span>
-                    {order.mobile && (
-                      <span className={styles.customerMobile}>{order.mobile}</span>
-                    )}
-                    {order.address && (
-                      <span className={styles.customerAddress} title={order.address}>
-                        {order.address.length > 30 ? order.address.slice(0, 30) + '…' : order.address}
-                      </span>
+                    {isManager ? (
+                      <>
+                        <span className={styles.customerName}>{order.customer_name || '—'}</span>
+                        {order.mobile && (
+                          <span className={styles.customerMobile}>{order.mobile}</span>
+                        )}
+                        {order.address && (
+                          <span className={styles.customerAddress} title={order.address}>
+                            {order.address.length > 30 ? order.address.slice(0, 30) + '…' : order.address}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      '—'
                     )}
                   </td>
                   <td>

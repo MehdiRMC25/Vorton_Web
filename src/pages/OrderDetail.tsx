@@ -19,7 +19,7 @@ function statusClass(s: OrderStatus): string {
 
 export default function OrderDetail() {
   const { t, locale } = useLocale()
-  const { user, token } = useAuth()
+  const { token } = useAuth()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [order, setOrder] = useState<Order | null>(null)

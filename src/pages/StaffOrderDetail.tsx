@@ -5,6 +5,7 @@ import { useLocale } from '../context/LocaleContext'
 import { getOrderById, updateOrderStatus, type Order, type OrderStatus } from '../api/orders'
 import { getDemoOrderById } from '../data/demoOrders'
 import { useOrdersSocket } from '../hooks/useOrdersSocket'
+import type { UserRole } from '../api/auth'
 import styles from './OrderDetail.module.css'
 
 const STATUS_OPTIONS: OrderStatus[] = ['PROCESSING', 'DISPATCHED', 'DELIVERED']
@@ -22,7 +23,9 @@ function statusClass(s: OrderStatus): string {
 
 export default function StaffOrderDetail() {
   const { t, locale } = useLocale()
-  const { token } = useAuth()
+  const { user, token } = useAuth()
+  const role: UserRole = (user?.role as UserRole) ?? 'customer'
+  const isManager = role === 'manager'
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [order, setOrder] = useState<Order | null>(null)
@@ -209,20 +212,26 @@ export default function StaffOrderDetail() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Customer & delivery</h2>
-        <div className={styles.row}>
-          <span className={styles.label}>Customer</span>
-          <span className={styles.value}>{order.customer_name}</span>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.label}>Mobile</span>
-          <span className={styles.value}>{order.mobile}</span>
-        </div>
-        {order.address && (
-          <div className={styles.row}>
-            <span className={styles.label}>Address</span>
-            <span className={styles.value}>{order.address}</span>
-          </div>
+        <h2 className={styles.sectionTitle}>
+          {isManager ? 'Customer & delivery' : t('orderDate')}
+        </h2>
+        {isManager && (
+          <>
+            <div className={styles.row}>
+              <span className={styles.label}>Customer</span>
+              <span className={styles.value}>{order.customer_name}</span>
+            </div>
+            <div className={styles.row}>
+              <span className={styles.label}>Mobile</span>
+              <span className={styles.value}>{order.mobile}</span>
+            </div>
+            {order.address && (
+              <div className={styles.row}>
+                <span className={styles.label}>Address</span>
+                <span className={styles.value}>{order.address}</span>
+              </div>
+            )}
+          </>
         )}
         <div className={styles.row}>
           <span className={styles.label}>{t('orderDate')}</span>

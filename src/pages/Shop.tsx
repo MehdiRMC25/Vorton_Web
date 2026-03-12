@@ -96,7 +96,6 @@ export default function Shop() {
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarBrand}>
-          <span className={styles.sidebarLogo}>V</span>
           <span className={styles.sidebarTitle}>Vorton</span>
           <span className={styles.sidebarTagline}>{t('discoverYourStyle')}</span>
         </div>

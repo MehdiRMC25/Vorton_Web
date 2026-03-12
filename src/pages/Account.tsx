@@ -59,10 +59,6 @@ export default function Account() {
     typeof user?.membership_number === 'string' && user.membership_number
       ? user.membership_number
       : (typeof user?.id === 'string' || typeof user?.id === 'number' ? `VORT-${String(user?.id).padStart(6, '0')}` : t('notProvided'))
-  const memberCode =
-    typeof user?.id === 'string' || typeof user?.id === 'number'
-      ? `ID-${user.id}`
-      : t('notProvided')
 
   const totalSalesAzn = typeof user?.total_sales_azn === 'number' ? user.total_sales_azn : undefined
   const level = getLevelFromSales(totalSalesAzn, user?.membership_level)
