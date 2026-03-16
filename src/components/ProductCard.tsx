@@ -10,9 +10,11 @@ interface ProductCardProps {
   onImageError?: (productId: string) => void
   /** Smaller card for similar-products sections */
   compact?: boolean
+  /** When set, show only this color variant (image, swatches) instead of all variants */
+  selectedColorFilter?: string
 }
 
-export default function ProductCard({ product, onImageError, compact }: ProductCardProps) {
+export default function ProductCard({ product, onImageError, compact, selectedColorFilter }: ProductCardProps) {
   const { t } = useLocale()
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
@@ -22,24 +24,51 @@ export default function ProductCard({ product, onImageError, compact }: ProductC
     onImageError?.(product.id)
   }
 
-  const displayPrice = product.salePrice ?? product.price
-  const hasSale = product.onSale && product.salePrice != null
+  /** When color filter active, use the matching variant; otherwise use first/default */
+  const displayVariant = useMemo(() => {
+    if (!selectedColorFilter?.trim() || !product.variants?.length || !product.colors?.length) return null
+    const filterLower = selectedColorFilter.trim().toLowerCase()
+    const idx = product.colors.findIndex((c) => c.name?.trim().toLowerCase() === filterLower)
+    if (idx >= 0 && product.variants[idx]) return product.variants[idx]
+    const fallback = product.variants.find(
+      (v) => v.color?.trim().toLowerCase() === filterLower
+    )
+    return fallback ?? null
+  }, [product.variants, product.colors, selectedColorFilter])
 
-  /** Only show colors for variants with valid SKU-Color (avoid extra/duplicate swatches) */
+  const displayImage = displayVariant?.image ?? product.image
+  const displaySizes = displayVariant?.sizes ?? product.sizes
+  const displayPrice = displayVariant
+    ? (displayVariant.discountedPrice ?? displayVariant.price)
+    : (product.salePrice ?? product.price)
+  const hasSale = displayVariant
+    ? (displayVariant.isDiscounted || (displayVariant.discountedPrice != null && displayVariant.discountedPrice < displayVariant.price))
+    : (product.onSale && product.salePrice != null)
+  const priceOriginal = displayVariant ? displayVariant.price : product.price
+
+  /** When color filter active, show only that color; otherwise show all valid variant colors */
   const displayColors = useMemo(() => {
+    if (displayVariant && product.variants && product.colors) {
+      const idx = product.variants.indexOf(displayVariant)
+      if (idx >= 0 && product.colors[idx]) {
+        return [product.colors[idx]]
+      }
+      const colorName = displayVariant.color?.trim() || 'Grey'
+      return [{ name: colorName, hex: '#6b7280' }]
+    }
     if (!product.variants?.length) return product.colors
     return product.colors.filter((_, i) => variantHasValidColor(product.variants![i]))
-  }, [product.colors, product.variants])
+  }, [product.colors, product.variants, displayVariant])
 
   if (imageError) return null
 
   if (!imageLoaded) {
-return (
-    <div className={`${styles.card} ${compact ? styles.cardCompact : ''}`} aria-hidden>
+    return (
+      <div className={`${styles.card} ${compact ? styles.cardCompact : ''}`} aria-hidden>
         <div className={styles.imageWrap}>
           <div className={styles.imagePlaceholder} />
           <img
-            src={product.image}
+            src={displayImage}
             alt=""
             className={styles.imageHidden}
             onLoad={() => setImageLoaded(true)}
@@ -58,8 +87,8 @@ return (
   return (
     <Link to={`/shop/${product.slug}`} className={`${styles.card} ${compact ? styles.cardCompact : ''}`}>
       <div className={styles.imageWrap}>
-        <img src={product.image} alt={product.name} className={styles.image} />
-        {product.onSale && <span className={styles.saleBadge}>{t('sale')}</span>}
+        <img src={displayImage} alt={product.name} className={styles.image} />
+        {hasSale && <span className={styles.saleBadge}>{t('sale')}</span>}
       </div>
       <div className={styles.body}>
         <h3 className={styles.name}>{product.name}</h3>
@@ -74,10 +103,10 @@ return (
             />
           ))}
         </div>
-        <p className={styles.sizes}>{t('sizesLabel')}: {product.sizes.join(', ')}</p>
+        <p className={styles.sizes}>{t('sizesLabel')}: {displaySizes.join(', ')}</p>
         <div className={styles.priceRow}>
           {hasSale && (
-            <span className={styles.priceOriginal}>₼{product.price.toFixed(2)}</span>
+            <span className={styles.priceOriginal}>₼{priceOriginal.toFixed(2)}</span>
           )}
           <span className={hasSale ? styles.priceSale : styles.price}>
             ₼{displayPrice.toFixed(2)}

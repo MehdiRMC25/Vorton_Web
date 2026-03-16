@@ -117,7 +117,12 @@ export default function Shop() {
       ) : (
         <div className={styles.grid}>
           {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} onImageError={onImageError} />
+            <ProductCard
+              key={p.id}
+              product={p}
+              selectedColorFilter={selectedColor || undefined}
+              onImageError={onImageError}
+            />
           ))}
         </div>
       )}
