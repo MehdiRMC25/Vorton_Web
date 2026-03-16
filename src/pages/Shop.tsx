@@ -3,7 +3,7 @@ import { useSearchParams, useLocation } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useLocale } from '../context/LocaleContext'
 import ProductCard from '../components/ProductCard'
-import ScrollSelect from '../components/ScrollSelect'
+import FilterLayout from '../components/FilterLayout'
 import type { Product } from '../types'
 import styles from './Shop.module.css'
 
@@ -93,71 +93,34 @@ export default function Shop() {
   }, [byCategory, selectedColor, selectedSize])
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <span className={styles.sidebarTitle}>Vorton</span>
-          <span className={styles.sidebarTagline}>{t('discoverYourStyle')}</span>
-        </div>
-
-        <div className={styles.filterBlock}>
-          <label className={styles.filterLabel} htmlFor="shop-gender">{t('gender')}</label>
-          <select
-            id="shop-gender"
-            className={styles.select}
-            value={category ?? ''}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">{t('all')}</option>
-            <option value="men">{t('men')}</option>
-            <option value="women">{t('women')}</option>
-          </select>
-        </div>
-
-        <div className={styles.filterBlock}>
-          <ScrollSelect
-            id="shop-color"
-            label={t('color')}
-            value={selectedColor}
-            options={filterOptions.colors.map((c) => ({ value: c, label: c }))}
-            placeholder={t('allColors')}
-            onChange={setSelectedColor}
-            disabled={loading}
-          />
-        </div>
-
-        <div className={styles.filterBlock}>
-          <ScrollSelect
-            id="shop-size"
-            label={t('size')}
-            value={selectedSize}
-            options={filterOptions.sizes.map((s) => ({ value: s, label: s }))}
-            placeholder={t('allSizes')}
-            onChange={setSelectedSize}
-            disabled={loading}
-          />
-        </div>
-      </aside>
-
-      <div className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>
-            {category === 'men' ? t('mensCollection') : category === 'women' ? t('womensCollection') : t('shop')}
-          </h1>
-        </div>
-        {error && <p style={{ color: 'var(--sale)', marginBottom: 16 }}>{error}</p>}
-        {loading ? (
-          <p className={styles.empty}>{t('loadingProducts')}</p>
-        ) : filtered.length === 0 ? (
-          <p className={styles.empty}>{t('noProductsMatch')}</p>
-        ) : (
-          <div className={styles.grid}>
-            {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} onImageError={onImageError} />
-            ))}
-          </div>
-        )}
+    <FilterLayout
+      category={category}
+      setCategory={setCategory}
+      selectedColor={selectedColor}
+      setSelectedColor={setSelectedColor}
+      selectedSize={selectedSize}
+      setSelectedSize={setSelectedSize}
+      colors={filterOptions.colors}
+      sizes={filterOptions.sizes}
+      loading={loading}
+    >
+      <div className={styles.header}>
+        <h1 className={styles.title}>
+          {category === 'men' ? t('mensCollection') : category === 'women' ? t('womensCollection') : t('shop')}
+        </h1>
       </div>
-    </div>
+      {error && <p style={{ color: 'var(--sale)', marginBottom: 16 }}>{error}</p>}
+      {loading ? (
+        <p className={styles.empty}>{t('loadingProducts')}</p>
+      ) : filtered.length === 0 ? (
+        <p className={styles.empty}>{t('noProductsMatch')}</p>
+      ) : (
+        <div className={styles.grid}>
+          {filtered.map((p) => (
+            <ProductCard key={p.id} product={p} onImageError={onImageError} />
+          ))}
+        </div>
+      )}
+    </FilterLayout>
   )
 }

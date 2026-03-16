@@ -41,9 +41,9 @@
 }
 
 .logoIcon {
-  height: 44px;
+  height: 54px;
   width: auto;
-  max-width: 132px;
+  max-width: 162px;
   object-fit: contain;
   display: block;
   vertical-align: middle;
@@ -111,35 +111,23 @@
   color: var(--text-primary);
 }
 
-.langBtn {
-  margin-left: 8px;
-  padding: 6px 14px;
-  background: transparent;
-  border: 2px solid var(--accent);
-  border-radius: var(--radius-sm);
-  color: var(--accent);
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.langBtn:hover {
-  background: rgba(249, 115, 22, 0.15);
-  color: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-
+/* Language switcher: no container, orange bold text, same style for both languages */
+.langBtn,
 .langBtnActive {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  margin-left: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
+.langBtn:hover,
 .langBtnActive:hover {
-  background: var(--accent-hover);
-  color: white;
-  border-color: var(--accent-hover);
+  color: var(--accent-hover);
 }
 
 .mainPadded {
@@ -175,8 +163,9 @@
   .nav a {
     font-size: 1.05rem;
   }
-  .langBtn {
-    font-size: 1rem;
+  .langBtn,
+  .langBtnActive {
+    font-size: 1.1rem;
   }
 
   .footer {

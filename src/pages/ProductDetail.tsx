@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useCart } from '../context/CartContext'
 import { useLocale } from '../context/LocaleContext'
+import { variantHasValidColor } from '../api/products'
 import ProductCard from '../components/ProductCard'
 import type { Product } from '../types'
 import styles from './ProductDetail.module.css'
@@ -60,6 +61,23 @@ export default function ProductDetail() {
     setMainImage(0)
     setSelectedSize(null)
   }, [selectedColor])
+
+  const validColorSwatches = useMemo(() => {
+    if (!product?.variants?.length) return (product?.colors ?? []).map((c, i) => ({ variantIndex: i, color: c }))
+    return product!.variants!
+      .map((v, i) => ({ variantIndex: i, variant: v, color: product!.colors[i] }))
+      .filter(({ variant }) => variant && variantHasValidColor(variant))
+      .map(({ variantIndex, color }) => ({ variantIndex, color: color || { name: 'Grey', hex: '#6b7280' } }))
+  }, [product?.variants, product?.colors])
+
+  useEffect(() => {
+    if (product && validColorSwatches.length > 0) {
+      const validIndices = new Set(validColorSwatches.map((s) => s.variantIndex))
+      if (!validIndices.has(selectedColor)) {
+        setSelectedColor(validColorSwatches[0].variantIndex)
+      }
+    }
+  }, [product?.id, validColorSwatches, selectedColor])
 
   if (loading) {
     return (
@@ -123,18 +141,18 @@ export default function ProductDetail() {
           <h1 className={styles.title}>{p.name}</h1>
           <p className={styles.sku}>SKU: {p.sku}</p>
 
-          {p.colors.length > 0 && (
+          {validColorSwatches.length > 0 && (
             <div className={styles.row}>
               <span className={styles.label}>{t('color')}:</span>
               <div className={styles.colorSwatches}>
-                {p.colors.map((c, i) => (
+                {validColorSwatches.map(({ variantIndex, color }) => (
                   <button
-                    key={c.name}
+                    key={`${color.name}-${variantIndex}`}
                     type="button"
-                    className={`${styles.colorBtn} ${i === selectedColor ? styles.colorBtnActive : ''}`}
-                    style={{ background: c.hex }}
-                    onClick={() => setSelectedColor(i)}
-                    title={c.name}
+                    className={`${styles.colorBtn} ${variantIndex === selectedColor ? styles.colorBtnActive : ''}`}
+                    style={{ background: color.hex }}
+                    onClick={() => setSelectedColor(variantIndex)}
+                    title={color.name}
                   />
                 ))}
               </div>

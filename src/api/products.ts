@@ -2,44 +2,151 @@ import { config, cloudinaryUrl } from '../config'
 import type { ApiProductDoc } from './types'
 import type { Product, ProductVariant } from '../types'
 
-/** Map color names (and skuColor suffixes) to hex for swatches. Include all API variants (EN/AZ, with/without spaces). */
+/** Map color names (and skuColor suffixes) to hex for swatches. */
 const COLOR_HEX: Record<string, string> = {
+  /* Base colors */
   Grey: '#6b7280',
   Gray: '#6b7280',
   Black: '#1a1a1a',
   White: '#f5f5f5',
-  Navy: '#1e3a5f',
-  Blue: '#2563eb',
-  Purple: '#7c3aed',
-  Beige: '#d4a574',
   Red: '#dc2626',
+  Blue: '#2563eb',
   Green: '#16a34a',
-  Olive: '#84cc16',
-  Brown: '#92400e',
-  'Dark Purple': '#4c1d95',
-  'Light Grey': '#9ca3af',
-  Boz: '#8b7355',
+  Purple: '#7c3aed',
   Pink: '#ec4899',
-  'Hot Pink': '#ff69b4',
-  'Hot-Pink': '#ff69b4',
   Orange: '#f97316',
   Yellow: '#eab308',
+  Brown: '#92400e',
+  Beige: '#d4a574',
+  Cream: '#fef3c7',
+  Navy: '#1e3a5f',
+  Olive: '#84cc16',
   Maroon: '#881337',
   Burgundy: '#9f1239',
-  Cream: '#fef3c7',
   Khaki: '#a3a36e',
   Teal: '#0d9488',
   Mint: '#6ee7b7',
   Lavender: '#a78bfa',
   Charcoal: '#374151',
-  /* Blue variants so swatches match product images */
+  /* Grey variants */
+  'Light Grey': '#9ca3af',
+  'Light-Grey': '#9ca3af',
+  'Dark-Grey': '#4b5563',
+  'Smoke-Grey': '#64748b',
+  'Steel-Grey': '#475569',
+  'Graphite-Grey': '#374151',
+  'Ash-Grey': '#6b7280',
+  /* Red variants */
+  'Dark-Red': '#991b1b',
+  /* Pink variants */
+  'Hot Pink': '#ff69b4',
+  'Hot-Pink': '#ff69b4',
+  'Pastel-Pink': '#fce7f3',
+  'Pastel-Blue': '#dbeafe',
+  /* Blue variants */
   'Dark Blue': '#1e3a5f',
-  'Royal Blue': '#1d4ed8',
+  'Dark-Blue': '#1e3a5f',
   'Light Blue': '#38bdf8',
+  'Light-Blue': '#38bdf8',
   'Sky Blue': '#0ea5e9',
+  'Sky-Blue': '#0ea5e9',
   'Navy Blue': '#1e3a5f',
+  'Navy-Blue': '#1e3a5f',
+  'Royal Blue': '#1d4ed8',
   'Midnight Blue': '#1e293b',
-  /* Azeri / alternate names */
+  'Electric Blue': '#00bfff',
+  'Electric-blue': '#00bfff',
+  'Ice-Blue': '#87ceeb',
+  'Turquoise': '#40e0d0',
+  'Aqua': '#00ffff',
+  'Denim-Blue': '#1560bd',
+  'Cerulean-Blue': '#0284c7',
+  'Sapphire-Blue': '#0c4a6e',
+  'Smoky-Blue': '#64748b',
+  /* Green variants */
+  'Light-Green': '#86efac',
+  'Dark-Green': '#166534',
+  'Emerald-Green': '#10b981',
+  'Pastel-Green': '#dcfce7',
+  /* Teal variants */
+  'Light-Teal': '#5eead4',
+  'Dark-Teal': '#0f766e',
+  /* Purple variants */
+  'Dark Purple': '#4c1d95',
+  'Pastel-Purple': '#f3e8ff',
+  'Deep-Purple': '#581c87',
+  'Lilac': '#c8a2c8',
+  'Plum': '#581c87',
+  /* Yellow variants */
+  'Mustard': '#ca8a04',
+  'Pastel-Yellow': '#fef9c3',
+  /* Deep variants */
+  'Deep-Blue': '#1e3a5f',
+  'Deep-Green': '#14532d',
+  'Deep-Red': '#7f1d1d',
+  /* Brown variants */
+  'Dark-Brown': '#78350f',
+  'Chocolate': '#5c4033',
+  'Chocolate-Brown': '#5c4033',
+  'Coffee-Brown': '#6f4e37',
+  'Earth-Brown': '#78350f',
+  'Caramel': '#d2691e',
+  'Terracotta': '#c2410c',
+  'Brick-Red': '#b91c1c',
+  /* Neutrals */
+  'Ivory': '#fffff0',
+  'Tan': '#d2b48c',
+  'Camel': '#c19a6b',
+  'Sand': '#c2b280',
+  'Off-White': '#f8f8f8',
+  /* Metallics */
+  'Gold': '#eab308',
+  'Silver': '#9ca3af',
+  'Bronze': '#cd7f32',
+  'Copper': '#b87333',
+  'Rose-Gold': '#b76e79',
+  /* Other */
+  'Coral': '#fb7185',
+  'Peach': '#ffdab9',
+  'Champagne': '#f7e7ce',
+  'Wine-Burgundy': '#722f37',
+  'Blue-green': '#0d9488',
+  'Blue-Black': '#1e3a5f',
+  'Blue-White': '#2563eb',
+  'White-Blue': '#2563eb',
+  'Green-Black': '#166534',
+  'Green-White': '#86efac',
+  'Navy-Black': '#1e3a5f',
+  'Navy-White': '#1e3a5f',
+  'Black-Red': '#991b1b',
+  'Black-White': '#4b5563',
+  'White-Black': '#4b5563',
+  'Red-Black': '#991b1b',
+  'Red-White': '#dc2626',
+  'Yellow-Black': '#ca8a04',
+  'Yellow-White': '#eab308',
+  'Orange-Black': '#ea580c',
+  'Pink-White': '#ec4899',
+  'Purple-Black': '#581c87',
+  'Grey-Black': '#4b5563',
+  'Grey-White': '#9ca3af',
+  'Black-Grey': '#374151',
+  'Brown-White': '#92400e',
+  'Beige-White': '#d4a574',
+  'Blue-Grey': '#64748b',
+  'Olive-Black': '#4d7c0f',
+  'Cream-Brown': '#d4a574',
+  'Cream-Nude': '#f5e6d3',
+  'Cream-Khaki': '#c3b091',
+  'Purple-cream': '#e9d5ff',
+  'Grey-cream': '#d1d5db',
+  'Black-Tiger': 'radial-gradient(ellipse 35% 40% at 20% 30%, #2d1f0f 0%, #1a1a1a 30%, transparent 70%), radial-gradient(ellipse 30% 35% at 70% 60%, #2d1f0f 0%, #1a1a1a 25%, transparent 65%), radial-gradient(ellipse 25% 30% at 50% 85%, #1a1a1a 0%, #3d2914 40%, transparent 70%), radial-gradient(ellipse 28% 32% at 85% 20%, #2d1f0f 0%, transparent 60%), #d4b896',
+  'Ruby-Red': '#be123c',
+  'Multicolour': '#6b7280',
+  Indigo: '#4f46e5',
+  'İndigo': '#4f46e5',
+  /* Azeri */
+  Boz: '#8b7355',
   Mavi: '#2563eb',
   'Tünd mavi': '#1e3a5f',
   'Tünd Mavi': '#1e3a5f',
@@ -49,6 +156,18 @@ const COLOR_HEX: Record<string, string> = {
   Qırmızı: '#dc2626',
   Yaşıl: '#16a34a',
   Narıncı: '#f97316',
+  Velvet: '#722f37',
+}
+
+/** Numeric SKU-Color codes (last segment when it's a number, e.g. SET-OYS-L-326 → 326). Extend as needed. */
+const NUMERIC_COLOR_CODES: Record<string, string> = {
+  '326': 'Navy',
+  '344': 'Blue',
+  '356': 'Electric Blue',
+  '364': 'Olive',
+  '319': 'Charcoal',
+  '320': 'Purple',
+  /* Add more as you discover product codes */
 }
 
 /** Aliases: alternate spellings or API values that should map to a known key. */
@@ -75,6 +194,27 @@ const COLOR_ALIASES: Record<string, string> = {
   hotpink: 'Hot Pink',
   'hot pink': 'Hot Pink',
   'hot-pink': 'Hot Pink',
+  'white blue': 'Blue',
+  'white-blue': 'Blue',
+  'blue white': 'Blue',
+  'electric blue': 'Electric Blue',
+  'electric-blue': 'Electric Blue',
+  'navy-blue': 'Navy Blue',
+  velvet: 'Velvet',
+  'ice-blue': 'Ice-Blue',
+  'ice blue': 'Ice-Blue',
+  'cream-nude': 'Cream-Nude',
+  'cream nude': 'Cream-Nude',
+  indigo: 'Indigo',
+  'ındigo': 'Indigo',
+  multicolour: 'Multicolour',
+  'multi-colour': 'Multicolour',
+  'blue-green': 'Blue-green',
+  'blue green': 'Blue-green',
+  'grey-cream': 'Grey-cream',
+  'grey cream': 'Grey-cream',
+  'purple-cream': 'Purple-cream',
+  'purple cream': 'Purple-cream',
 }
 
 /** Normalize for lookup: "purple" -> "Purple", "dark blue" -> "Dark Blue". */
@@ -93,15 +233,47 @@ function colorToHex(color: string): string {
   return COLOR_HEX[key] ?? COLOR_HEX[raw] ?? COLOR_HEX[normalized] ?? '#6b7280'
 }
 
-/** Get color name from end of skuColor e.g. "SKU-123-Purple" -> "Purple", "X-Blue" -> "Blue". */
-function colorNameFromSkuColor(skuColor: string | undefined): string | null {
+/** Color modifiers that form compound names: Electric-blue, Dark-blue, Cream-Nude, etc. */
+const COLOR_MODIFIERS = new Set([
+  'electric', 'dark', 'light', 'royal', 'navy', 'midnight', 'sky', 'hot', 'pale', 'bright',
+  'deep', 'soft', 'muted', 'vivid', 'ice', 'steel', 'powder', 'baby', 'true', 'electricblue',
+  'cream', 'pastel', 'smoke', 'graphite', 'ash', 'wine', 'earth', 'brick', 'terracotta',
+  'caramel', 'coffee', 'chocolate', 'emerald', 'sapphire', 'ruby', 'cerulean', 'smoky',
+  'rose', 'denim', 'sand', 'off', 'nude', 'white', 'black', 'grey', 'gray', 'blue', 'green',
+  'red', 'yellow', 'orange', 'pink', 'purple', 'brown', 'beige', 'olive',
+])
+
+/** Get color name from end of skuColor. Handles "SET-OYS-L-326" -> "326", "X-Blue" -> "Blue", "X-Electric-blue" -> "Electric-blue". */
+function getSuffixFromSkuColor(skuColor: string | undefined): string | null {
   if (!skuColor || typeof skuColor !== 'string') return null
   const trimmed = skuColor.trim()
-  const lastDash = trimmed.lastIndexOf('-')
-  if (lastDash === -1) return null
-  const suffix = trimmed.slice(lastDash + 1).trim()
-  if (!suffix || /^\d+$/.test(suffix)) return null
+  const parts = trimmed.split('-')
+  if (parts.length < 2) return null
+  const last = parts[parts.length - 1]?.trim()
+  const prev = parts[parts.length - 2]?.trim()
+  if (!last) return null
+  // Compound color: "Electric-blue", "Dark-blue" etc.
+  if (prev && COLOR_MODIFIERS.has(prev.toLowerCase())) {
+    const compound = `${prev}-${last}`
+    return compound
+  }
+  return last
+}
+
+/** Get color name from end of skuColor. Handles both text ("Blue") and numeric codes ("326" -> Navy). */
+function colorNameFromSkuColor(skuColor: string | undefined): string | null {
+  const suffix = getSuffixFromSkuColor(skuColor)
+  if (!suffix) return null
+  if (/^\d+$/.test(suffix)) {
+    return NUMERIC_COLOR_CODES[suffix] ?? null
+  }
   return suffix
+}
+
+/** True if variant has real color from color field or skuColor (not defaulted to Grey). */
+export function variantHasValidColor(v: import('../types').ProductVariant): boolean {
+  if (v.color?.trim()) return true
+  return colorNameFromSkuColor(v.skuColor) != null
 }
 
 function slugFromSku(sku: string): string {

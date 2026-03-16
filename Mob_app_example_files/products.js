@@ -39,6 +39,16 @@ const PROJECTION = {
   videoUrl: 1, video: 1,
   isNewCollection: 1, is_new_collection: 1, IsNewCollection: 1, newCollection: 1,
   isDiscounted: 1, is_discounted: 1,
+  Display: 1, display: 1,
+};
+
+// Only products with Display === "online" are shown on website/app. "stock-only" and "stock_only" are excluded.
+const DISPLAY_ONLINE_QUERY = {
+  $or: [
+    { Display: "online" },
+    { Display: "Online" },
+    { display: "online" },
+  ],
 };
 
 function hasMongoUri() {
@@ -70,9 +80,10 @@ async function getCollection() {
         collection.createIndex({ gender: 1 }),
         collection.createIndex({ sku: 1 }),
         collection.createIndex({ skuColor: 1 }),
+        collection.createIndex({ Display: 1 }),
       ]);
       indexesCreated = true;
-      console.log("[products] MongoDB indexes ensured (gender, sku, skuColor)");
+      console.log("[products] MongoDB indexes ensured (gender, sku, skuColor, Display)");
     } catch (e) {
       console.warn("[products] Index creation skipped:", e.message);
     }
@@ -220,7 +231,7 @@ async function getAllProducts() {
   if (isCacheValid(serverCache.all)) return { list: serverCache.all.data, fromFallback: false };
   try {
     const { collection: col } = await getCollection();
-    const docs = await col.find({}, { projection: PROJECTION }).sort({ sku: 1, _id: 1 }).toArray();
+    const docs = await col.find(DISPLAY_ONLINE_QUERY, { projection: PROJECTION }).sort({ sku: 1, _id: 1 }).toArray();
     const products = docs.map((d) => { try { return normalize(d); } catch (e) { console.warn("[products] normalize failed:", e.message); return null; } }).filter(Boolean);
     serverCache.all = { data: products, ts: Date.now() };
     products.forEach((p) => { if (p.id) serverCache.byId[p.id] = { data: p, ts: Date.now() }; });
@@ -238,9 +249,9 @@ async function getProductById(id) {
     const { collection: col } = await getCollection();
     let doc = null;
     try {
-      if (ObjectId.isValid(id) && String(new ObjectId(id)) === id) doc = await col.findOne({ _id: new ObjectId(id) }, { projection: PROJECTION });
+      if (ObjectId.isValid(id) && String(new ObjectId(id)) === id) doc = await col.findOne({ _id: new ObjectId(id), ...DISPLAY_ONLINE_QUERY }, { projection: PROJECTION });
     } catch (_) {}
-    if (!doc) doc = await col.findOne({ $or: [{ sku: id }, { skuColor: id }, { id: id }] }, { projection: PROJECTION });
+    if (!doc) doc = await col.findOne({ $and: [{ $or: [{ sku: id }, { skuColor: id }, { id: id }] }, DISPLAY_ONLINE_QUERY ] }, { projection: PROJECTION });
     const product = normalize(doc);
     if (product && product.id) serverCache.byId[product.id] = { data: product, ts: Date.now() };
     return product;
@@ -257,7 +268,7 @@ async function getProductsByCategory(category) {
     const { collection: col } = await getCollection();
     const c = String(category).trim().toLowerCase();
     const re = new RegExp(`^${c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i");
-    const docs = await col.find({ $or: [{ category: re }, { gender: re }] }, { projection: PROJECTION }).sort({ sku: 1, _id: 1 }).toArray();
+    const docs = await col.find({ $and: [{ $or: [{ category: re }, { gender: re }] }, DISPLAY_ONLINE_QUERY ] }, { projection: PROJECTION }).sort({ sku: 1, _id: 1 }).toArray();
     const products = docs.map((d) => { try { return normalize(d); } catch (e) { console.warn("[products] normalize failed:", e.message); return null; } }).filter(Boolean);
     serverCache.byCategory[category] = { data: products, ts: Date.now() };
     return products;
@@ -316,11 +327,16 @@ async function getVariantsByBaseSku(baseSku) {
     const { collection: col } = await getCollection();
     const docs = await col
       .find({
-        $or: [
-          { sku: base },
-          { sku: { $regex: `^${escapedPrefix}` } },
-          { skuColor: base },
-          { skuColor: { $regex: `^${escapedPrefix}` } },
+        $and: [
+          {
+            $or: [
+              { sku: base },
+              { sku: { $regex: `^${escapedPrefix}` } },
+              { skuColor: base },
+              { skuColor: { $regex: `^${escapedPrefix}` } },
+            ],
+          },
+          DISPLAY_ONLINE_QUERY,
         ],
       }, { projection: PROJECTION })
       .sort({ sku: 1, skuColor: 1 })

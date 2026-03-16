@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
+import { variantHasValidColor } from '../api/products'
 import type { Product } from '../types'
 import styles from './ProductCard.module.css'
 
@@ -23,6 +24,12 @@ export default function ProductCard({ product, onImageError, compact }: ProductC
 
   const displayPrice = product.salePrice ?? product.price
   const hasSale = product.onSale && product.salePrice != null
+
+  /** Only show colors for variants with valid SKU-Color (avoid extra/duplicate swatches) */
+  const displayColors = useMemo(() => {
+    if (!product.variants?.length) return product.colors
+    return product.colors.filter((_, i) => variantHasValidColor(product.variants![i]))
+  }, [product.colors, product.variants])
 
   if (imageError) return null
 
@@ -58,9 +65,9 @@ return (
         <h3 className={styles.name}>{product.name}</h3>
         <p className={styles.sku}>SKU: {product.sku}</p>
         <div className={styles.colors}>
-          {product.colors.map((c) => (
+          {displayColors.map((c, i) => (
             <span
-              key={c.name}
+              key={`${c.name}-${i}`}
               className={styles.colorDot}
               style={{ background: c.hex }}
               title={c.name}
