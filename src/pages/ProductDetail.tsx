@@ -79,6 +79,11 @@ export default function ProductDetail() {
     }
   }, [product?.id, validColorSwatches, selectedColor])
 
+  const similarProducts = useMemo(() => {
+    if (!product) return []
+    return getSimilarProducts(product, products, SIMILAR_LIMIT)
+  }, [product, products])
+
   if (loading) {
     return (
       <div className="container">
@@ -100,7 +105,6 @@ export default function ProductDetail() {
 
   const p = product
   const variantIndex = p.variants?.length ? selectedColor : 0
-  const similarProducts = useMemo(() => getSimilarProducts(p, products, SIMILAR_LIMIT), [p, products])
 
   function handleAddToCart() {
     addItem({

@@ -1,11 +1,11 @@
 // Vite exposes only env vars prefixed with VITE_ to the client.
 // Create a .env file with these variables (see .env.example).
 
-/** Products come from the mobile-app backend (vorton-mob-app). Do not use vorton-payement for products. */
-const PRODUCTS_BASE = 'https://vorton-mob-app.onrender.com'
+/** Products come from vorton-payement backend (unified with auth, payments, orders). */
+const PRODUCTS_BASE = 'https://vorton-payement.onrender.com'
 
 export const config = {
-  /** Base URL for products API only. Defaults to vorton-mob-app. */
+  /** Base URL for products API. Defaults to vorton-payement. */
   apiUrl: (import.meta.env.VITE_API_URL || import.meta.env.VITE_PRODUCTS_API_URL || PRODUCTS_BASE).replace(/\/$/, ''),
   productsPath: import.meta.env.VITE_PRODUCTS_PATH || '/api/products',
   /** Payment backend base URL (no trailing slash). Backend must allow CORS for your site origin. */
